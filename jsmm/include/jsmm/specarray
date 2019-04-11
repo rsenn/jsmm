@@ -1,0 +1,137 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_specarray_H
+#define jsmm_specarray_H
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <jsmm/allocprivate>
+
+/** Allocate in blocks of 16 spec structs */
+#define jsmm_specarray_BLKSIZE 16 
+
+/** Calculates how many blocks are allocated */
+#define jsmm_specarray_BLOCKS(n) \
+   (((n) / jsmm_specarray_BLKSIZE) + 1)
+
+/** Calculates for how many spec structs there is space */
+#define jsmm_specarray_AVAIL(n) \
+   ((jsmm_specarray_BLOCKS(n) * jsmm_specarray_BLKSIZE) - 1)
+
+/** Rounds up n + 1 to the block size */
+#define jsmm_specarray_NEED(n) \
+   (jsmm_specarray_BLOCKS(n) * jsmm_specarray_BLKSIZE)
+
+jsmm_namespace_BEGIN
+
+/**
+ * An array of {Function,Property,ConstDouble}Spec structures.
+ */
+template<typename Type> struct SpecArray :
+  public AllocPrivate<Uint, Type>
+{
+public:
+  /** 
+   * Creates an empty spec array
+   */
+  SpecArray()
+  {
+    if(allocate(jsmm_specarray_BLKSIZE))
+    {
+      AllocPrivate<Uint, Type>::setPrivate(0);
+      terminate();
+    }
+  }
+
+  /**
+   * Deallocates the spec array 
+   */
+  ~SpecArray()
+  {}
+
+  /**
+   * Append one or more structs to the array
+   */
+  Bool add(Type *specs, Uint n = 1)
+  {
+    Uint count = AllocPrivate<Uint, Type>::getPrivate();
+    
+    /* check if we need to allocate */
+    if(jsmm_specarray_AVAIL(count) < (count + n))
+    {
+      if(!allocate(count + n))
+        return false;
+    }
+    
+    /* copy the structs to their place */
+    memcpy((void *)&AllocPrivate<Uint, Type>::base[count], 
+           (void *)specs, sizeof(Type) * n);
+    
+    AllocPrivate<Uint, Type>::setPrivate(count + n);
+    terminate();
+
+    return true;
+  }
+
+  /**
+   * Clears all entries
+   */
+  void clear()
+  {
+    AllocPrivate<Uint, Type>::setPrivate(0);
+    allocate(0);
+    terminate();
+  }
+  
+  /**
+   * Return number of specs in array
+   */
+  Uint size() const
+  {
+    return AllocPrivate<Uint, Type>::getPrivate();
+  }
+  
+private:
+
+  /**
+   * Zero-terminate the array
+   */
+  void terminate
+    ()
+  {
+    Uint count = AllocPrivate<Uint, Type>::getPrivate();
+
+    ::memset((void *)&AllocPrivate<Uint, Type>::base[count], 0, sizeof(Type));
+  }
+  
+  /**
+   * Allocate space for at least n structs + null termination
+   */
+  Bool allocate
+    (Uint n)
+  {
+    return AllocPrivate<Uint, Type>::allocate(jsmm_specarray_NEED(n));
+  }
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_specarray_H */

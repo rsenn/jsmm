@@ -1,0 +1,161 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_allocprivate_H
+#define jsmm_allocprivate_H
+
+#include <jsmm/types>
+
+jsmm_namespace_BEGIN
+
+/** 
+ * Memory allocation class which maintains
+ * a block of private data of the specified
+ * type in front of the virtually allocated
+ * space.
+ */
+template<typename Private, typename Type> 
+  struct AllocPrivate
+{
+public:
+  /** 
+   * First, allocate space for the private thing only.
+   */
+  AllocPrivate() : base(0)
+  {
+    Private *ptr = static_cast<Private *>
+      (::malloc(sizeof(Private)));
+    
+    if(ptr)
+      base = (Type *)&ptr[1];
+  }
+
+  AllocPrivate(Uint n) : base(0)
+  {
+    Private *ptr = static_cast<Private *>
+      (::malloc(sizeof(Private) + sizeof(Type) * n));
+    
+    if(ptr)
+      base = (Type *)&ptr[1];
+  }
+
+  /**
+   * Take over an existing instance. 
+   */
+  AllocPrivate(Type *ptr)
+  {
+    base = ptr;
+  }
+  
+  /**
+   * Deallocates memory.
+   */
+  ~AllocPrivate()
+  {
+    if(base)
+    {
+      Private *ptr = (Private *)base;
+      ::free(&ptr[-1]);
+    }
+  }
+  
+  /**
+   * Gets base pointer.
+   * 
+   * \return  A pointer to the allocated space.
+   */
+  Type *getBase() const
+  {
+    return base;
+  }
+  
+  Type *moveBase()
+  {
+    Type *ret = base;
+    base = 0;
+    return ret;
+  }
+  
+  /**
+   * Get reference to private data.
+   * 
+   * \return  A reference to the private data.
+   */
+  Private &getPrivate() const
+  {
+    Private *ptr = (Private *)base;
+    return ptr[-1];
+  }
+
+
+  /**
+   * Allocate space for at least n items of Type.
+   * 
+   * \param n  Number of items to allocate space for.
+   * \return   true if allocation succeeded, false if not.
+   */
+  Bool allocate(Uint n)
+  {
+    Private *ptr = (Private *)
+      ::realloc((void *)getPrivatePtr(), sizeof(Private) + n * sizeof(Type));
+    
+    if(ptr)
+      base = (Type *)&ptr[1];
+    else
+      base = 0;
+
+    return (base != 0);
+  }
+protected:
+  /**
+   * Get pointer to private data.
+   * 
+   * \return  A pointer to the private data.
+   */
+  Private *getPrivatePtr()
+  {
+    if(base)
+    {
+      Private *ptr = (Private *)base;
+      return &ptr[-1];
+    }
+    return 0;
+  }
+  
+  /**
+   * Set private data.
+   * 
+   * \param prv  The private data.
+   */
+  void setPrivate(Private prv)
+  {
+    if(base)
+    {
+      Private *ptr = (Private *)base;
+      ptr[-1] = prv;
+    }
+  }
+
+  /** Base pointer */
+  Type *base; 
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_allocprivate_H */

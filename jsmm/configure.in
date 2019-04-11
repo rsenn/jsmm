@@ -1,0 +1,71 @@
+AC_INIT([jsmm], [0.1])
+AC_CONFIG_AUX_DIR([config])
+
+AC_CANONICAL_HOST
+AC_CONFIG_SRCDIR([src/api.cpp])
+AC_PREFIX_DEFAULT([/usr])
+
+AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE
+
+AC_CONFIG_HEADERS([config/config.h])
+
+dnl AM_DISABLE_SHARED
+AC_PROG_CXX
+AC_PROG_LIBTOOL
+
+AC_FIND_ACDIR
+
+AC_CHECK_DEBUG
+AC_CHECK_WERROR
+
+AM_PATH_JS
+
+ac_cv_os="unknown"
+
+case "$host" in
+  *linux*)
+    ac_cv_os="linux"
+    AC_DEFINE_UNQUOTED([XP_UNIX], 1, [Define this if you are running a UNIXish OS flavour])
+    ;;
+  *freebsd*)
+    ac_cv_os="freebsd"
+    AC_DEFINE_UNQUOTED([XP_UNIX], 1, [Define this if you are running a UNIXish OS flavour])
+    ;;
+  *mingw*|*cygwin*)
+    ac_cv_os="win32"
+    AC_DEFINE_UNQUOTED([XP_WIN], 1, [Define this if you are running Windoze])
+    ;;
+esac
+
+if test "$ac_cv_os" = "unknown"; then
+  AC_MSG_ERROR([Could not detect operating system from host variable ($host).])
+fi
+
+AM_CONDITIONAL([WIN32], [test "$ac_cv_os" = "win32"])
+AM_CONDITIONAL([LINUX], [test "$ac_cv_os" = "linux"])
+
+AM_CONDITIONAL([SHAREDLIB], [test "$enable_shared" != "no"])
+AM_CONDITIONAL([STATICLIB], [test "$enable_static" != "no"])
+
+LIBTOOL='$(top_builddir)/libtool'
+AC_CHECK_VERBOSE
+
+dnl CFLAGS="${CFLAGS:+$CFLAGS }-funwind-tables -fasynchronous-unwind-tables"
+dnl AC_SUBST([CFLAGS])
+dnl CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }-fenforce-eh-specs -funwind-tables -fasynchronous-unwind-tables"
+dnl AC_SUBST([CXXFLAGS])
+
+AC_SUBST([LIBTOOL])
+
+AC_DEFINE_UNQUOTED([JS_VERSION], ["$PACKAGE_VERSION"], [Version of the SpiderMonkey++ engine])
+
+AC_CONFIG_FILES([Makefile
+                 config/Makefile
+                 config/jsmm-config
+                 examples/Makefile
+                 m4/Makefile
+                 include/Makefile
+                 include/jsmm/Makefile
+                 src/Makefile])
+AC_OUTPUT

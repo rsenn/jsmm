@@ -1,0 +1,231 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_pointer_H
+#define jsmm_pointer_H
+
+#include <jsmm/stdext>
+
+/** SpiderMonkey pointer types */
+/*@{*/
+struct JSRuntime;
+struct JSContext;
+struct JSObject;
+struct JSFunction;
+struct JSScript;
+struct JSClass;
+struct JSString;
+struct JSStackFrame;
+/*@}*/
+
+jsmm_namespace_BEGIN
+
+/**
+ * Pointer types.
+ */
+enum PointerType
+{
+  voidPtr = 0,
+  RuntimePointer,
+  ContextPointer,
+  ObjectPointer,
+  FunctionPointer,
+  ScriptPointer,
+  ClassPointer,
+  StringPointer,
+  StackFramePointer
+};
+  
+/**
+ * Forward declaration for generic pointer.
+ */
+struct Pointer;
+
+/** Allows concatenation of C strings and Pointers */
+std::string operator+(const char *s, Pointer &ptr);
+
+/**
+ * Forward declaration for typed reference.
+ */
+template<typename refType, enum PointerType refTypeId>
+  struct TypedReference;
+
+/**
+ * Generic pointer.
+ * 
+ * This structure encapsulates a pointer to a JS* structure.
+ * 
+ * Because it has only one member, it has the size of a word, so it
+ * can be passed along argument lists.
+ */
+struct Pointer
+{
+public:
+  Pointer() : jsPtr(0)
+  {}
+  
+  /** Initializes the Pointer instance with a pointer. */
+  Pointer(void *js) : jsPtr(js)
+  {}
+  
+  /** Returns the pointer. */
+  inline void *getPtr() const 
+  {
+    return jsPtr;
+  }
+  
+  /** Allow implicit casts of a Pointer to a void pointer. */
+  operator void *() const
+  { 
+    return jsPtr;
+  }
+
+  /** Returns the pointer type. */
+  static PointerType getType() 
+  {
+    return voidPtr;
+  }
+  
+  /** Returns the pointer type name for a specific PointerType. */
+  static const char *getTypeName(PointerType typeId = voidPtr);
+  
+  /** Converts pointer into a string */
+  std::string toString(PointerType typeId = voidPtr, bool ref = false) const;
+  
+  /** Allows implicit conversion of Pointers into strings. */
+  operator std::string() const
+  {
+    return toString();
+  }
+  
+protected:
+  /** The encapsulated pointer. */
+  void *jsPtr;
+};
+
+/**
+ * Forward declaration for typed pointer.
+ */
+template<typename ptrType, enum PointerType ptrTypeId>
+  struct TypedPointer;
+
+/**
+ * Template for typed pointers.
+ * 
+ * Because it has only one member, it has the size of a word, so it
+ * can be passed along argument lists.
+ * 
+ * A JS::Pointer<> must never contain a null-pointer.
+ */
+template<typename ptrType, enum PointerType ptrTypeId>
+  struct TypedPointer : public Pointer
+{
+public:
+  TypedPointer()
+  {}
+  
+  /** Initializes the TypedPointer instance with a pointer to a JS* structure. */
+  TypedPointer(ptrType *js) : Pointer(js) 
+  {}
+  
+  /** Allow assignments of ptrType pointers to the pointer. */
+  TypedPointer<ptrType, ptrTypeId> operator=(ptrType *js)
+  {
+    jsPtr = js;
+    
+    return TypedPointer<ptrType, ptrTypeId>
+      (reinterpret_cast<ptrType *>(jsPtr));
+  }
+
+  /** Returns a pointer to the associated JS* structure. */
+  inline ptrType *getPtr() const
+  {
+    return reinterpret_cast<ptrType *>(jsPtr);
+  }
+    
+  /** Allow implicit casts of a TypedPointer to a ptrType pointer. */
+  operator ptrType *() const
+  { 
+    return reinterpret_cast<ptrType *>(jsPtr);
+  }
+  
+  operator ptrType **() 
+  { 
+    return reinterpret_cast<ptrType **>(&jsPtr);
+  }
+  
+  operator bool()
+  {
+    return (jsPtr != 0);
+  }
+  
+  bool operator==(TypedPointer<ptrType, ptrTypeId> ptr)
+  {
+    return (jsPtr == ptr.getPtr());
+  }
+    
+  /** Allow implicit casts of a TypedPointer to a ptrType pointer. */
+  operator ptrType *&() 
+  { 
+    return reinterpret_cast<ptrType *&>(jsPtr);
+  }
+
+  /** Convert to a typed reference. */
+  operator TypedReference<ptrType, ptrTypeId>() const
+  {
+    return TypedReference<ptrType, ptrTypeId>(jsPtr);
+  }
+  
+  /** Returns the pointer type. */
+  static PointerType getType() 
+  { 
+    return ptrTypeId; 
+  }
+  
+  /** Returns the pointer type name. */
+  static const char *getTypeName() 
+  { 
+    return getTypeName(ptrTypeId); 
+  }
+  
+  /** Converts pointer into a string. */
+  std::string toString(bool ref = false) const
+  {
+    return Pointer::toString(ptrTypeId, ref);
+  }
+  
+  /** Allows implicit conversion of Pointers into strings. */
+  operator std::string() const
+  {
+    return toString();
+  }
+};
+
+typedef TypedPointer<JSRuntime,    RuntimePointer>    RuntimePtr;
+typedef TypedPointer<JSContext,    ContextPointer>    ContextPtr;
+typedef TypedPointer<JSObject,     ObjectPointer>     ObjectPtr;
+typedef TypedPointer<JSFunction,   FunctionPointer>   FunctionPtr;
+typedef TypedPointer<JSScript,     ScriptPointer>     ScriptPtr;
+typedef TypedPointer<JSClass,      ClassPointer>      ClassPtr;
+typedef TypedPointer<JSString,     StringPointer>     StringPtr;
+typedef TypedPointer<JSStackFrame, StackFramePointer> StackFramePtr;
+
+jsmm_namespace_END
+
+#endif /* jsmm_pointer_H */

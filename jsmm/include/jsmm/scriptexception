@@ -1,0 +1,48 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_scriptexception_H
+#define jsmm_scriptexception_H
+
+#include <jsmm/exception>
+
+jsmm_namespace_BEGIN
+
+class ScriptException : public Exception
+{
+public:
+  /** Construct a Script exception */
+  ScriptException(const ScriptPtr *clsref, const std::string &msg) :
+    Exception(ScriptEx), cls(*clsref)
+  {
+    message += ": ";
+    message += msg;
+  }
+
+  /** Destruct a Script exception */
+  virtual ~ScriptException() throw() {}
+
+protected:
+  /** The class which threw the exception. */
+  const ScriptPtr &cls;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_scriptexception_H */

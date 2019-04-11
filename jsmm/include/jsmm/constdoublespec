@@ -1,0 +1,70 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_constdoublespec_H
+#define jsmm_constdoublespec_H
+
+#include <jsmm/specarray>
+#include <jsmm/types>
+
+jsmm_namespace_BEGIN
+
+/** 
+ * Describes a double value and assigns it a name.
+ */
+struct ConstDoubleSpec
+{
+  Double        dval;     /**< Value for the double. */
+  const char   *name;     /**< Name to assign the double. */
+  PropertyAttrs flags;    /**< Attributes for the double. */
+  Uint8         spare[3]; /**< Reserved. */
+};
+
+/** Array of function spec structures */
+typedef SpecArray<ConstDoubleSpec> ConstDoubleSpecArray;
+
+/**
+ * Helper class for setting up function specs
+ */
+class ConstDoubleSpecs : public ConstDoubleSpecArray
+{
+public:
+  /** Create a function spec list */
+  ConstDoubleSpecs
+    () 
+  {}
+
+  /** Destroy the function spec list */
+  ~ConstDoubleSpecs
+    () 
+  {}
+
+  Bool add
+    (Double dval, const char *name, PropertyAttrs flags = 0);
+  
+  operator ConstDoubleSpec *
+    () const
+  {
+    return getBase();
+  }
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_constdoublespec_H */

@@ -1,0 +1,78 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_class_H
+#define jsmm_class_H
+
+#include <jsmm/classapi>
+#include <jsmm/callback>
+
+jsmm_namespace_BEGIN
+
+/**
+ * Class for SpiderMonkey Object's.
+ */
+class Class : public ClassAPI
+{
+friend class Engine;
+  
+public:
+  Class
+    (ClassRef ref);
+  
+  Class
+    (const char *name, 
+     Bool hasPrivate = false, Bool isExtended = false);
+  
+  Class
+    (const char *name, void *table, 
+     Bool hasPrivate = false, Bool isExtended = false);
+  
+  virtual ~Class();
+
+  static Class &getDefaultClass();
+  static void setDefaultClass(Class &cls);
+
+  static Class &getArgumentsClass();
+  static Class &getArrayClass();
+  static Class &getBoolClass();
+  static Class &getCallClass();
+  static Class &getFunctionClass();
+  static Class &getNumberClass();
+  static Class &getObjectClass();
+  static Class &getRegExpClass();
+  static Class &getScriptClass();
+  static Class &getStringClass();
+  static Class &getWithClass();
+  
+protected:
+  void freeStruct();
+  void freeName() const;
+  void setInstance(Class *inst) const;
+  void setName(const char *name) const;
+  void setClassVTable(void *vtable) const;
+  void setObjectVTable(void *vtable) const;
+  
+private:
+  void initBuiltin(Uint8 nslots, void *vtable = 0) const;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_class_H */

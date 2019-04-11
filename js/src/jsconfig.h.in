@@ -1,0 +1,172 @@
+#ifndef jsconfig_h___
+#define jsconfig_h___
+
+/* Define this if you want to build a debug version. */
+#undef JS_DEBUG
+
+/* apply(fun, arg1, ... argN) */
+#undef JS_HAS_APPLY_FUNCTION
+
+/* minimal ECMA arguments object */
+#undef JS_HAS_ARGS_OBJECT
+
+/* indexOf and Lispy extras */
+#undef JS_HAS_ARRAY_EXTRAS
+
+/* fun.call(obj, arg1, ... argN) */
+#undef JS_HAS_CALL_FUNCTION
+
+/* fun.caller is stack frame obj */
+#undef JS_HAS_CALL_OBJECT
+
+/* exception handling catch guard */
+#undef JS_HAS_CATCH_GUARD
+
+/* JS2 const as alternative var */
+#undef JS_HAS_CONST
+
+/* hook for debugger keyword */
+#undef JS_HAS_DEBUGGER_KEYWORD
+
+/* provides English error messages */
+#undef JS_HAS_DFLT_MSG_STRINGS
+
+/* do {...} while (b) */
+#undef JS_HAS_DO_WHILE_LOOP
+
+/* rt errors reflected as exceptions */
+#undef JS_HAS_ERROR_EXCEPTIONS
+
+/* Math.eval is same as with (Math) */
+#undef JS_HAS_EVAL_THIS_SCOPE
+
+/* exception handling */
+#undef JS_HAS_EXCEPTIONS
+
+/* export fun; import obj.fun */
+#undef JS_HAS_EXPORT_IMPORT
+
+/* File object */
+#undef JS_HAS_FILE_OBJECT
+
+/* function expression statement */
+#undef JS_HAS_FUN_EXPR_STMT
+
+/* JS2 getter/setter functions */
+#undef JS_HAS_GETTER_SETTER
+
+/* var o = {'foo': 42, 'bar':3} */
+#undef JS_HAS_INITIALIZERS
+
+/* {p:1} instanceof Object */
+#undef JS_HAS_INSTANCEOF
+
+/* in operator ('p' in {p:1}) */
+#undef JS_HAS_IN_OPERATOR
+
+/* break/continue to label: */
+#undef JS_HAS_LABEL_STATEMENT
+
+/* nested functions, lexically closed */
+#undef JS_HAS_LEXICAL_CLOSURE
+
+/* o.item(i) = j; for native item */
+#undef JS_HAS_LVALUE_RETURN
+
+/* array.push, str.substr, etc */
+#undef JS_HAS_MORE_PERL_FUN
+
+/* Object.prototype query methods */
+#undef JS_HAS_NEW_OBJ_METHODS
+
+/* o.__noSuchMethod__ handler */
+#undef JS_HAS_NO_SUCH_METHOD
+
+/* numbers have formatting methods */
+#undef JS_HAS_NUMBER_FORMATS
+
+/* o.__proto__ etc. */
+#undef JS_HAS_OBJ_PROTO_PROP
+
+/* o.watch and o.unwatch */
+#undef JS_HAS_OBJ_WATCHPOINT
+
+/* str.substr */
+#undef JS_HAS_PERL_SUBSTR
+
+/* delete o.p removes p from o */
+#undef JS_HAS_PROP_DELETE
+
+/* perl r.e.s via RegExp, /pat/ */
+#undef JS_HAS_REGEXPS
+
+/* string.replace(re, lambda) */
+#undef JS_HAS_REPLACE_LAMBDA
+
+/* (new Script("x++")).exec() */
+#undef JS_HAS_SCRIPT_OBJECT
+
+/* array.slice, string.concat */
+#undef JS_HAS_SEQUENCE_OPS
+
+/* #n=, #n# for object literals */
+#undef JS_HAS_SHARP_VARS
+
+/* array.join/reverse/sort */
+#undef JS_HAS_SOME_PERL_FUN
+
+/* array methods preserve empty elems */
+#undef JS_HAS_SPARSE_ARRAYS
+
+/* str.anchor, str.bold, etc. */
+#undef JS_HAS_STR_HTML_HELPERS
+
+/* switch (v) {case c: ...} */
+#undef JS_HAS_SWITCH_STATEMENT
+
+/* Object/Array toSource method */
+#undef JS_HAS_TOSOURCE
+
+/* === and !== identity eqops */
+#undef JS_HAS_TRIPLE_EQOPS
+
+/* global "undefined" property */
+#undef JS_HAS_UNDEFINED
+
+/* uneval() top-level function */
+#undef JS_HAS_UNEVAL
+
+/* valueOf(hint) where hint is typeof */
+#undef JS_HAS_VALUEOF_HINT
+
+/* XDR API and internal support */
+#undef JS_HAS_XDR
+
+/* XDR freeze/thaw script methods */
+#undef JS_HAS_XDR_FREEZE_THAW
+
+/* ECMAScript for XML support */
+#undef JS_HAS_XML_SUPPORT
+
+/* Define this if you have a system math library. */
+#undef JS_MATH
+
+/* Define this if you have the readline library. */
+#undef JS_READLINE
+
+/* Thread safety using NSPR threads */
+#undef JS_THREADSAFE
+
+/* fdlibm floating point math */
+#undef JS_USE_FDLIBM_MATH
+
+/* Version of the SpiderMonkey engine */
+#undef JS_VERSION
+
+/* Define this if you are running a UNIXish OS flavour */
+#undef XP_UNIX
+
+/* Define this if you are running Windoze */
+#undef XP_WIN
+
+#endif /* jsconfig_h___ */

@@ -1,0 +1,175 @@
+// <jsmm> -*- C++ -*-
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_value_H
+#define jsmm_value_H
+
+#include <jsmm/reference>
+#include <jsmm/types>
+
+jsmm_namespace_BEGIN
+
+/** Wraps a JavaScript value */
+class Value
+{ 
+public:
+  Bool isObject() const;
+  Bool isNumber() const;
+  Bool isInt() const;
+  Bool isDouble() const;
+  Bool isString() const;
+  Bool isBool() const;
+  Bool isNull() const;
+  Bool isUndefined() const;
+  Bool isPrimitive() const;
+  Bool isGCThing() const;
+
+  Bool isFunction(ContextRef cx) const;
+  Bool isNumber(ContextRef cx) const;
+  
+  /*@{*/
+  /* Getters. */
+  /** Gets jsval from JSValue */
+  Word        getJSValue()  const { return js_value; }
+  void       *getGCThing()  const;
+  ObjectPtr   getObject()   const;
+  FunctionPtr getFunction(ContextRef cx) const;
+  Double     &getDouble()   const;
+  StringPtr   getString()   const;
+  Int         getInt()      const;
+  Bool        getBoolean()  const;
+  Pointer     getPrivate()  const;
+  /*@}*/
+  
+  /*@{*/
+  /* Setters. */
+  Word setJSValue(Word val) { return js_value = val; };
+  Word setObject(ObjectPtr obj);
+  Word setFunction(FunctionPtr fun);
+  Word setDouble(Double &d);
+  Word setString(StringRef str);
+  Word setInt(Int i);
+  Word setBoolean(Bool b);
+  Word setPrivate(Pointer prv);
+  Word setUndefined();
+  Word setNull();
+  /*@}*/
+  
+  static Value getNaN              (ContextRef cx);
+  static Value getNegativeInfinity (ContextRef cx);
+  static Value getPositiveInfinity (ContextRef cx);
+  static Value getEmptyString      (ContextRef cx);
+  static Value getUndefined        ();
+  static Value getNull             ();
+  
+  /*@{*/
+  /* Convert to integer. */
+  Int32   toECMAInt32  (ContextRef cx) const;
+  Uint32  toECMAUint32 (ContextRef cx) const;
+  Int32   toInt32      (ContextRef cx) const;
+  Uint16  toUint16     (ContextRef cx) const;
+  Bool    toBoolean    (ContextRef cx) const;
+  /*@}*/
+
+  /*@{*/
+  /* Conversion functions. */
+  ObjectPtr   toObject    (ContextRef cx) const;
+  FunctionPtr toFunction  (ContextRef cx) const;
+  FunctionPtr toConstruct (ContextRef cx) const;
+  StringPtr   toString    (ContextRef cx) const;
+  Double      toNumber    (ContextRef cx) const;
+  /*@}*/
+  
+  
+  /*@{*/
+  /* Constructors. */
+  Value(ObjectPtr obj)           { setObject(obj); }
+  Value(FunctionPtr fun)         { setFunction(fun); }
+  Value(Double &d)               { setDouble(d); }
+  Value(ContextRef cx, Double d) { setDouble(d); }
+  Value(StringPtr str)           { setString(str); }
+  Value(Int i)                   { setInt(i); }      
+  Value(bool b)                  { setBoolean(b); }
+  Value(Pointer prv)             { setPrivate(prv); }
+  Value()                        { setUndefined(); }
+  /*@}*/
+  
+  /*@{*/
+  /* Allocators. */
+  Bool createDouble(ContextRef cx, Double d);
+  Bool createString(ContextRef cx, const char *s);
+  Bool createString(ContextRef cx, const char *s, Size length);
+  Bool createString(ContextRef cx, const std::string &s);
+  /*@}*/
+  
+  
+  /*@{*/
+  /* Static constructors. */
+  static Value newObject(ObjectPtr obj)            { return Value(obj); }
+  static Value newFunction(FunctionPtr fun)        { return Value(fun); }
+  static Value newDouble(Double &d)                { return Value(d); }
+  static Value newDouble(ContextRef cx, Double &d) { return Value(cx, d); }
+  static Value newString(StringPtr str)            { return Value(str); }
+  static Value newInt(Int i)                       { return Value(i); }
+  static Value newBool(Bool b)                     { return Value(b); }
+  static Value newPrivate(Pointer prv)             { return Value(prv); }
+  /*@}*/
+  
+
+  /* Returns type */
+  Type typeOf(ContextRef cx) const;
+
+  /* Returns type string for the specified type */
+  static const char *getTypeName(ContextRef cx, Type type);
+  
+  /* Returns type string for the value */
+  inline const char *getTypeName(ContextRef cx) const
+  {
+    return getTypeName(cx, typeOf(cx));
+  }
+  
+  Bool convert(ContextRef cx, Type type, Value &vref);
+  Value convert(ContextRef cx, Type type);
+  
+  static Value fromDouble(ContextRef cx, Double d);
+  
+  /** Gets jsval * from JSValue */
+  Word *getValuePointer()
+  {
+    return &js_value;
+  }
+  
+  operator long()
+  {
+    return js_value;
+  }
+  
+  operator long *()
+  {
+    return &js_value;
+  }
+  
+private:
+  /** The 32-bit word containing the value */
+  Word js_value;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_value_H */

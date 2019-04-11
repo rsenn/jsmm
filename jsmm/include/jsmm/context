@@ -1,0 +1,67 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_context_H
+#define jsmm_context_H
+
+#include <jsmm/contextapi>
+
+jsmm_namespace_BEGIN
+
+class Object;
+
+/**
+ * The instantiable Context class.
+ */
+class Context : public ContextAPI
+{
+public:
+  //! Creates new execution context within default runtime.
+  Context(Uint stackChunkSize = 8192);
+  
+  //! Creates new execution context within the specified runtime.
+  Context(RuntimeRef rt, Uint stackChunkSize = 8192);
+  
+  //! Destroys execution context.
+  ~Context();
+  
+  Object *getGlobalObject();
+  Object &requestGlobalObject();
+  
+protected:
+  static void defaultErrorReporter(ContextPtr cx, const char *msg,
+                                   ErrorReport &err);
+  
+private:
+  //@{
+  //! Destroys the execution context. 
+  void destroy();
+  void destroyNoGC();
+  void destroyMaybeGC();
+  //@}
+
+  //! Sets the private data pointer of the execution context.
+  void setInstance(Context *cx) const;
+  
+  Object *globalObject;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_context_H */

@@ -1,0 +1,164 @@
+AC_INIT([js], [1.6])
+AC_CONFIG_AUX_DIR([config])
+
+AC_CANONICAL_HOST
+AC_CONFIG_SRCDIR([src/js.c])
+AC_PREFIX_DEFAULT([/usr])
+
+AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE
+
+AC_CONFIG_HEADERS([config/config.h src/jsconfig.h src/jscpucfg.h])
+
+dnl AM_DISABLE_SHARED
+AC_PROG_CC
+dnl AC_PROG_CXX
+AC_PROG_LIBTOOL
+
+AC_FIND_ACDIR
+
+AC_CHECK_DEBUG
+dnl AC_CHECK_BUILDS
+AC_CHECK_WERROR
+
+AM_PATH_MATH
+AC_CHECK_READLINE
+
+dnl AC_COMPILER_VERSION([CC])
+dnl AC_COMPILER_PATHS([CC])
+
+
+m4_define([JS_ARG], [m4_bpatsubst(m4_tolower([$1]), _, -)])
+m4_define([JS_ENABLE], [  --enable]-[JS_ARG([$1])])
+m4_define([JS_DISABLE], [  --disable]-[JS_ARG([$1])])
+m4_define([JS_USE], [  --with]-[JS_ARG([$1])])
+
+AC_DEFUN([JS_FEATURE_ENABLE],
+[
+JS_HAS_[$1]=0
+AC_ARG_ENABLE(JS_ARG([$1]), [m4_format([%-32s], JS_ENABLE([$1])) $2], [if test "$enableval" = "yes"; then JS_HAS_[$1]=1; fi])
+AC_DEFINE_UNQUOTED(JS_HAS_[$1], [$]JS_HAS_[$1], [$2])
+])
+
+AC_DEFUN([JS_FEATURE_DISABLE],
+[
+JS_HAS_[$1]=1
+AC_ARG_ENABLE(JS_ARG([$1]), [m4_format([%-32s], JS_DISABLE([$1])) $2], [if test "$enableval" = "no"; then JS_HAS_[$1]=0; fi])
+AC_DEFINE_UNQUOTED(JS_HAS_[$1], [$]JS_HAS_[$1], [$2])
+])
+
+AC_DEFUN([JS_FEATURE_USE],
+[
+JS_USE_[$1]=1
+AC_ARG_WITH(JS_ARG([$1]), [m4_format([%-27s], JS_USE([$1])) $2], [if test "$withval" != "yes"; then JS_USE_[$1]=0; fi])
+AC_DEFINE_UNQUOTED(JS_USE_[$1], [$]JS_USE_[$1], [$2])
+AM_CONDITIONAL(USE_[$1], [test "[$]JS_USE_[$1]" = "1"])
+])
+
+AC_DEFUN([JS_FEATURE],
+[
+JS_[$1]=1
+AC_ARG_WITH(JS_ARG([$1]), [m4_format([%-27s], JS([$1])) $2], [if test "$withval" != "yes"; then JS_[$1]=0; fi])
+AC_DEFINE_UNQUOTED(JS_[$1], [$]JS_[$1], [$2])
+AM_CONDITIONAL([$1], [test "[$]JS_[$1]" = "1"])
+])
+
+JS_FEATURE_USE([FDLIBM_MATH], [fdlibm floating point math])
+JS_FEATURE([THREADSAFE], [Thread safety using NSPR threads])
+
+JS_FEATURE_DISABLE([PROP_DELETE], [delete o.p removes p from o])
+JS_FEATURE_DISABLE([CALL_OBJECT], [fun.caller is stack frame obj])
+JS_FEATURE_DISABLE([LABEL_STATEMENT], [break/continue to label:])
+JS_FEATURE_DISABLE([DO_WHILE_LOOP], [do {...} while (b)])
+JS_FEATURE_DISABLE([SWITCH_STATEMENT], [switch (v) {case c: ...}])
+JS_FEATURE_DISABLE([SOME_PERL_FUN], [array.join/reverse/sort])
+JS_FEATURE_DISABLE([MORE_PERL_FUN], [array.push, str.substr, etc])
+JS_FEATURE_DISABLE([STR_HTML_HELPERS], [str.anchor, str.bold, etc.])
+JS_FEATURE_DISABLE([PERL_SUBSTR], [str.substr])
+JS_FEATURE_DISABLE([VALUEOF_HINT], [valueOf(hint) where hint is typeof])
+JS_FEATURE_DISABLE([LEXICAL_CLOSURE], [nested functions, lexically closed])
+JS_FEATURE_DISABLE([APPLY_FUNCTION], [apply(fun, arg1, ... argN)])
+JS_FEATURE_DISABLE([CALL_FUNCTION], [fun.call(obj, arg1, ... argN)])
+JS_FEATURE_DISABLE([OBJ_PROTO_PROP], [o.__proto__ etc.])
+JS_FEATURE_DISABLE([REGEXPS], [perl r.e.s via RegExp, /pat/])
+JS_FEATURE_DISABLE([SEQUENCE_OPS], [array.slice, string.concat])
+JS_FEATURE_DISABLE([INITIALIZERS], [var o = {'foo': 42, 'bar':3}])
+JS_FEATURE_DISABLE([OBJ_WATCHPOINT], [o.watch and o.unwatch])
+JS_FEATURE_DISABLE([EXPORT_IMPORT], [export fun; import obj.fun])
+JS_FEATURE_DISABLE([EVAL_THIS_SCOPE], [Math.eval is same as with (Math)])
+JS_FEATURE_DISABLE([TRIPLE_EQOPS], [=== and !== identity eqops])
+JS_FEATURE_DISABLE([SHARP_VARS], [#n=, #n# for object literals])
+JS_FEATURE_DISABLE([REPLACE_LAMBDA], [string.replace(re, lambda)])
+JS_FEATURE_DISABLE([SCRIPT_OBJECT], [(new Script("x++")).exec()])
+JS_FEATURE_DISABLE([XDR], [XDR API and internal support])
+JS_FEATURE_ENABLE([XDR_FREEZE_THAW], [XDR freeze/thaw script methods])
+JS_FEATURE_DISABLE([EXCEPTIONS], [exception handling])
+JS_FEATURE_DISABLE([UNDEFINED], [global "undefined" property])
+JS_FEATURE_DISABLE([TOSOURCE], [Object/Array toSource method])
+JS_FEATURE_DISABLE([IN_OPERATOR], [in operator ('p' in {p:1})])
+JS_FEATURE_DISABLE([INSTANCEOF], [{p:1} instanceof Object])
+JS_FEATURE_DISABLE([ARGS_OBJECT], [minimal ECMA arguments object])
+JS_FEATURE_DISABLE([DEBUGGER_KEYWORD], [hook for debugger keyword])
+JS_FEATURE_DISABLE([ERROR_EXCEPTIONS], [rt errors reflected as exceptions])
+JS_FEATURE_DISABLE([CATCH_GUARD], [exception handling catch guard])
+JS_FEATURE_DISABLE([NEW_OBJ_METHODS], [Object.prototype query methods])
+JS_FEATURE_ENABLE([SPARSE_ARRAYS], [array methods preserve empty elems])
+JS_FEATURE_DISABLE([DFLT_MSG_STRINGS], [provides English error messages])
+JS_FEATURE_DISABLE([NUMBER_FORMATS], [numbers have formatting methods])
+JS_FEATURE_DISABLE([GETTER_SETTER], [JS2 getter/setter functions])
+JS_FEATURE_DISABLE([UNEVAL], [uneval() top-level function])
+JS_FEATURE_DISABLE([CONST], [JS2 const as alternative var])
+JS_FEATURE_DISABLE([FUN_EXPR_STMT], [function expression statement])
+JS_FEATURE_DISABLE([LVALUE_RETURN], [o.item(i) = j; for native item])
+JS_FEATURE_DISABLE([NO_SUCH_METHOD], [o.__noSuchMethod__ handler])
+JS_FEATURE_DISABLE([XML_SUPPORT], [ECMAScript for XML support])
+JS_FEATURE_DISABLE([ARRAY_EXTRAS], [indexOf and Lispy extras])
+JS_FEATURE_DISABLE([FILE_OBJECT], [File object])
+
+ac_cv_os="unknown"
+
+AM_PATH_NSPR
+
+case "$host" in
+  *linux*)
+    ac_cv_os="linux"
+    AC_DEFINE_UNQUOTED([XP_UNIX], 1, [Define this if you are running a UNIXish OS flavour])
+    ;;
+  *freebsd*)
+    ac_cv_os="freebsd"
+    AC_DEFINE_UNQUOTED([XP_UNIX], 1, [Define this if you are running a UNIXish OS flavour])
+    ;;
+  *mingw*|*cygwin*)
+    ac_cv_os="win32"
+    AC_DEFINE_UNQUOTED([XP_WIN], 1, [Define this if you are running Windoze])
+    ;;
+esac
+
+if test "$ac_cv_os" = "unknown"; then
+  AC_MSG_ERROR([Could not detect operating system from host variable ($host).])
+fi
+
+AC_CHECK_FUNC([tcgetattr], 
+  AC_DEFINE_UNQUOTED([HAVE_TCGETATTR], 1, [Define if you have the tcgetattr() function]))
+
+AM_CONDITIONAL([WIN32], [test "$ac_cv_os" = "win32"])
+AM_CONDITIONAL([LINUX], [test "$ac_cv_os" = "linux"])
+
+AM_CONDITIONAL([SHAREDLIB], [test "$enable_shared" != "no"])
+AM_CONDITIONAL([STATICLIB], [test "$enable_static" != "no"])
+
+
+LIBTOOL='$(top_builddir)/libtool'
+AC_CHECK_VERBOSE
+AC_SUBST([LIBTOOL])
+
+AC_DEFINE_UNQUOTED([JS_VERSION], ["$PACKAGE_VERSION"], [Version of the SpiderMonkey engine])
+
+
+AC_CONFIG_FILES([Makefile
+                 config/Makefile
+                 config/js-config
+                 m4/Makefile
+                 src/Makefile
+                 src/fdlibm/Makefile])
+AC_OUTPUT

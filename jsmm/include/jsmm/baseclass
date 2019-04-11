@@ -1,0 +1,106 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_baseclass_H
+#define jsmm_baseclass_H
+
+#include <jsmm/class>
+
+jsmm_namespace_BEGIN
+
+/**
+ * A Class object which provides Class-related callbacks as virtual
+ * methods which can be overridden.
+ */
+class BaseClass : public Class
+{
+public:
+  BaseClass
+    (const char *name, Bool hasPrivate = false);
+
+  BaseClass
+    (const char *name, void *table, Bool hasPrivate = false);
+
+  virtual ~BaseClass() {}
+
+//  protected:
+  virtual Bool addProperty
+    (ContextRef cx, ObjectAPI obj, Value id, Value &vref) const;
+
+  virtual Bool delProperty
+    (ContextRef cx, ObjectAPI obj, Value id, Value &vref) const;
+
+  virtual Bool getProperty
+    (ContextRef cx, ObjectAPI obj, Value id, Value &vref) const;
+
+  virtual Bool setProperty
+    (ContextRef cx, ObjectAPI obj, Value id, Value &vref) const;
+
+  virtual Bool enumerate
+    (ContextRef cx, ObjectAPI obj) const;
+
+  virtual Bool resolve
+    (ContextRef cx, ObjectAPI obj, Value id) const;
+
+  virtual Bool convert
+    (ContextRef cx, ObjectAPI obj, Type type, Value &vref) const;
+
+  virtual void finalize
+    (ContextRef cx, ObjectAPI obj) const;
+  
+  virtual ObjectOps *getObjectOps
+    (ContextRef cx, ClassRef cls) const;
+  
+  virtual Bool checkAccess
+    (ContextRef cx, ObjectAPI obj, Value id, AccessMode mode, Value &vref) 
+    const;
+  
+  virtual Bool call
+    (ContextRef cx, ObjectAPI obj, Uint argc, Value argv[], Value &rval)
+    const;
+  
+  virtual Bool construct
+    (ContextRef cx, ObjectAPI obj, Uint argc, Value argv[], Value &rval) 
+    const;
+  
+/*    virtual Bool xdrObject
+    (XDRState &xdr, ObjectPtr &objref) const;*/
+  
+  virtual Bool hasInstance
+    (ContextRef cx, ObjectAPI obj, Value v, Bool &bref) const;
+
+  virtual Uint mark
+    (ContextRef cx, ObjectAPI obj, void *arg) const;
+    
+  virtual Uint reserveSlots
+    (ContextRef cx, ObjectAPI obj) const;
+    
+  virtual Bool equality
+    (ContextRef cx, ObjectAPI obj, Value v, Bool &bref) const;
+    
+  virtual ObjectPtr outerObject
+    (ContextRef cx, ObjectAPI obj) const;
+    
+  virtual ObjectPtr innerObject
+    (ContextRef cx, ObjectAPI obj) const;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_baseclass_H */

@@ -1,0 +1,61 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_baseconstructor_H
+#define jsmm_baseconstructor_H
+
+#include <jsmm/constructor>
+
+jsmm_namespace_BEGIN
+
+/**
+ * A Constructor class which provides the native constructor call as
+ * a pure-virtual method which must be implemented in derived classes
+ * and which constructs the Object.
+ */
+class BaseConstructor : public Constructor
+{
+public:
+  /**
+   * Default constructor
+   */
+  BaseConstructor
+    (ContextRef cx, ObjectRef obj,  ObjectPtr parent_proto, ClassAPI cls,
+     Uint8 nargs, PropertySpec ps[], FunctionSpec fs[],
+     PropertySpec static_ps[] = 0, FunctionSpec static_fs[] = 0);
+
+  BaseConstructor
+    (ContextRef cx, ObjectRef obj,  ObjectPtr parent_proto, ClassAPI cls,
+     Uint8 nargs, Prototype &proto);
+
+  BaseConstructor
+    (ContextRef cx, ObjectRef obj,  ObjectPtr parent_proto, ClassAPI cls,
+     Uint8 nargs, Prototype &proto, Prototype &static_proto);
+
+  /** 
+   * The C++ function that will handle 
+   * calls to the native JavaScript constructor
+   */
+  virtual Bool native
+    (ContextRef cx, ObjectPtr obj, Uint argc, Value argv[], Value &rval) = 0;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_baseconstructor_H */

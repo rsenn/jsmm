@@ -1,0 +1,123 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_object_H
+#define jsmm_object_H
+
+#include <jsmm/objectapi>
+#include <jsmm/contextapi>
+
+jsmm_namespace_BEGIN
+
+/**
+ * Forward declarations.
+ */
+class Function;
+ 
+enum ObjectFlag
+{
+  DeleteObject = 0x01 /* Delete the object instance when finalizing... */
+};
+
+typedef Uint8 ObjectFlags;
+
+/**
+ * JS::Object class, derivate from JS::ObjectRef.
+ *
+ * Now this class provides constructors/destructors.
+ */
+class Object : public ObjectAPI
+{
+friend class Context;
+friend class ObjectAPI;
+  
+public:
+  /// Constructs an object from a prototype and invokes the constructor
+  /// function.
+  Object(ContextRef cx, ClassPtr cls, 
+         ObjectPtr proto, ObjectPtr parent);
+  
+  /// Constructs an object from a prototype and invokes the constructor
+  /// function with the provided arguments.
+  Object(ContextRef cx, ClassPtr cls, 
+         ObjectPtr proto, ObjectPtr parent,
+         Uint argc, Value argv[]);
+  
+    
+  /** Destroys the Object instance */
+  virtual ~Object() 
+  {
+  }
+  
+  ObjectFlags getFlags() const
+  {
+    return flags;
+  }
+  
+  Object &defineObject
+    (ContextRef cx, const char *name, ClassPtr cls, ObjectPtr proto,
+     Int attrs = DefaultProp) const;
+  
+  Object &defineObject
+    (ContextRef cx, const char *name, ClassPtr cls, Int attrs = DefaultProp)
+    const;
+  
+  Object &defineObject
+    (ContextRef cx, const char *name, Int attrs = DefaultProp) const;
+
+  Object &getPrototype
+    (ContextRef cx) const;
+
+  Object &getParent
+    (ContextRef cx) const;
+
+  static Bool propertyStub
+    (ContextRef cx, ObjectAPI obj, Value id, Value &vref);
+
+  static Bool enumerateStub
+    (ContextRef cx, ObjectAPI obj);
+
+  static Bool resolveStub   
+    (ContextRef cx, ObjectAPI obj, Value id);
+
+  static Bool convertStub   
+    (ContextRef cx, ObjectAPI obj, Type type, Value &vref);
+  
+  static Bool finalizeStub
+    (ContextRef cx, ObjectAPI obj);
+
+  static void *getVTable();
+
+protected:
+  Object();
+  Object(ContextRef cx, ObjectRef ref, ObjectFlags flg = 0);
+  
+  void setInstance(ContextRef cx, Object *obj);
+
+  void *getVTablePtr() const
+  {
+    return *(void **)this;
+  }
+  
+  ObjectFlags flags;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_object_H */

@@ -1,0 +1,62 @@
+// <jsmm> -*- C++ -*-
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_errorreport_H
+#define jsmm_errorreport_H
+
+#include <jsmm/types>
+
+jsmm_namespace_BEGIN
+
+/** Possible error types */
+enum ErrorNumber
+{
+  ERROR = 0,
+  WARNING,
+  EXCEPTION,
+  STRICT,
+  ERRORTYPES
+};
+
+/**
+ * Error reports as received from the SpiderMonkey engine.
+ */
+struct ErrorReport
+{
+  const char  *filename;     /**< Source file name, URL, etc., or null */
+  Uint         lineNo;       /**< Source line number */
+  const char  *lineBuf;      /**< Offending source line without final \n */
+  const char  *tokenPtr;     /**< Pointer to error token in linebuf */
+  const Char  *ucLineBuf;    /**< Unicode (original) line buffer */
+  const Char  *ucTokenPtr;   /**< Unicode (original) token pointer */
+  Uint         flags;        /**< Error/warning, etc. */
+  ErrorNumber  errorNumber;  /**< The error number, e.g. see js.msg */
+  const Char  *ucMessage;    /**< The (default) error message */
+  const Char **messageArgs;  /**< Arguments for the error message */
+
+  /** Get the index of the token that triggered the error */
+  Uint getToken();
+
+  /** Get the type name of the error */
+  const char *getErrorString();
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_errorreport_H */

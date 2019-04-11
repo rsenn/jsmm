@@ -1,0 +1,316 @@
+// <jsmm> -*- C++ -*-
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_contextapi_H
+#define jsmm_contextapi_H
+
+#include <jsmm/reference>
+#include <jsmm/types>
+
+jsmm_namespace_BEGIN
+
+/** Forward declarations. */
+/*@{*/
+class Context;
+class Runtime;
+struct Value;
+struct StackFrame;
+struct Principals;
+struct ErrorReport;
+/*@}*/
+
+/** Error report function. */
+typedef void ErrorReporter(ContextPtr cx, const char *message,
+                           ErrorReport &report);
+
+/**
+ * Class that wraps JSContext, a JavaScript execution context.
+ * This is the simple version which should not be instantiated 
+ * using the 'new' operator.
+ * Because it has only one member, it has the size of a word and
+ * can be typecast from/to a JSContext pointer.
+ */
+struct ContextAPI : public ContextRef
+{
+protected:
+  static ContextPtr create(RuntimeRef rt, Uint stackChunkSize);
+  
+public:
+  ContextAPI(ContextRef cx) : ContextRef(cx)
+  {}
+
+  Context *getInstance() const;
+  Runtime &getRuntime() const;
+
+  /**
+   * Sets the global object for this context
+   */    
+  void setGlobalObject(ObjectPtr obj) const;
+/*    {
+    JS::SetGlobalObject(*this, obj);
+  }*/
+  
+  /**
+   * Gets the global object of this context.
+   * 
+   * \return  A pointer to an 'Object' object or NULL
+   */
+  ObjectPtr getGlobalObject() const;
+/*    {
+    return GetGlobalObject(*this);
+  }*/
+  
+  ObjectRef requestGlobalObject();
+  
+  /**
+   * Sets the error reporter
+   */
+  void setErrorReporter(ErrorReporter *report) const;
+/*    {
+    SetErrorReporter(*this, report);
+  }*/
+
+  /**
+   * Registers an object pointer as a member of the garbage collector's
+   * root set, to protect the object the root points at from garbage 
+   * collection.
+   * 
+   * \param obj  The object to root.
+   * \return     true if successful, false otherwise.
+   */
+  Bool addRoot(ObjectRef &obj) const;
+/*    {
+    return AddRoot(*this, &obj);
+  }*/
+  
+  /**
+   * Registers a pointer to an object, aWord with a name string for debugging
+   * and diagnostics, as a member of the garbage collector's root set, to 
+   * protect the object the root points at from garbage collection.
+   * 
+   * \param obj   The object to root.
+   * \param name  The name of the root.
+   * \return      true if successful, false otherwise.
+   */
+  Bool addNamedRoot(ObjectRef &obj, const char *name) const;
+/*    {
+    return AddNamedRoot(*this, obj, name);
+  }*/
+
+//    Bool addRoot(StringPtr &obj, const char *name = 0);
+//    Bool addDouble(DoublePtr &obj, const char *name = 0);
+
+  /**
+   * Registers a value pointer as a member of the garbage collector's
+   * root set, to protect the value the root points at from garbage 
+   * collection.
+   * 
+   * \param val  The value to root.
+   * \return     true if successful, false otherwise.
+   */
+  Bool addRoot(Value &val) const;
+/*    {
+    if(!val.isGCThing())
+      return false;
+ 
+    return AddRoot(*this, &val);
+  }*/
+
+  /**
+   * Registers a pointer to a value, aWord with a name string for debugging
+   * and diagnostics, as a member of the garbage collector's root set, to
+   * protect the value the root points at from garbage collection.
+   * 
+   * \param val   The value to root.
+   * \param name  The name of the root.
+   * \return      true if successful, false otherwise.
+   */
+  Bool addNamedRoot(Value &val, const char *name) const;
+/*    {
+    if(!val.isGCThing())
+      return false;
+ 
+    return AddNamedRoot(*this, &val, name);
+  }*/
+ 
+  /**
+   * Unregisters a pointer to an object so that it is no longer a member of
+   * the garbage collector's root set. This enables the pointed-at object
+   * to be garbage collected as needed.
+   * 
+   * \param obj  The object root to remove.
+   * \return     true if successful, false otherwise.
+   */ 
+  Bool removeRoot(ObjectRef &obj) const;
+/*    {
+    return RemoveRoot(*this, &obj);
+  }*/
+
+//    Bool removeRoot(StringPtr &obj);
+//    Bool removeDouble(DoublePtr &obj);
+
+  /**
+   * Unregisters a pointer to a value so that it is no longer a member of
+   * the garbage collector's root set. This enables the pointed-at value
+   * to be garbage collected as needed.
+   * 
+   * \param val  The value root to remove.
+   * \return     true if successful, false otherwise.
+   */
+  Bool removeRoot(Value &val) const;
+/*    {
+    if(!val.isGCThing())
+      return false;
+
+    return RemoveRoot(*this, &val);
+  }*/
+  
+  /**
+   * The last GC thing of each type (object, string, double, external string
+   * types) created on a given context is kept alive until another thing of the
+   * same type is created, using a newborn root in the context.  These newborn
+   * roots help native code protect newly-created GC-things from GC invocations
+   * activated before those things can be rooted using local or global roots.
+   *
+   * However, the newborn roots can also entrain great gobs of garbage, so the
+   * JS_GC entry point clears them for the context on which GC is being forced.
+   * Embeddings may need to do likewise for all contexts.
+   *
+   * See the scoped local root API immediately below for a better way to manage
+   * newborns in cases where native hooks (functions, getters, setters, etc.)
+   * create many GC-things, potentially without connecting them to predefined
+   * local roots such as *rval or argv[i] in an active native function.  Using
+   * EnterLocalRootScope disables updating of the context's per-gc-thing-
+   * type newborn roots, until control flow unwinds and leaves the outermost
+   * nesting local root scope.
+   */
+  void clearNewbornRoots() const;
+/*    {
+    ClearNewbornRoots(*this);
+  }*/
+  
+  Bool enterLocalRootScope() const;
+  void leaveLocalRootScope() const;
+  void forgetLocalRoot(ObjectRef &obj) const;
+  void forgetLocalRoot(Value &val) const;
+  
+  void garbageCollect() const;
+/*    {
+    GC(*this);
+  }*/
+  
+  void maybeGarbageCollect() const;
+/*    {
+    MaybeGC(*this);
+  }*/
+
+  Bool lockGCThing(void *thing) const;
+/*    {
+    return LockGCThing(*this, thing);
+  }*/
+  
+  Bool unlockGCThing(void *thing) const;
+/*    {
+    return UnlockGCThing(*this, thing);
+  }*/
+  
+  /** \defgroup ContextRequests  Request methods for thread-safety 
+   *
+   * When your multi-threaded application wants to execute JS API
+   * calls on a thread, it should use Context::beginRequest and
+   * Context::endRequest to bracket maximal non-blocking hunks of
+   * native code that call the JS API. This "request model" serves
+   * two purposes: to interlock with the global mark/sweep garbage
+   * collector, and to optimize object locking to be lock-free in
+   * most cases. 
+   * In order to achieve these purposes, Context::beginRequest
+   * first checks that garbage collection is not in process. If
+   * it is, Context::beginRequest waits until garbage collection
+   * is complete before locking the JS engine runtime and incre-
+   * menting its request counter. After incrementing the counter,
+   * Context::beginRequest unlocks the runtime if it previously 
+   * locked it.
+   * 
+   * It is therefore imperative that native code executing within
+   * an active request on the Context not block, or simply take too 
+   * long. Any blocking native call, or lengthy computation that
+   * can race safely with the garbage collector, must be bracketed
+   * within the native method or function with Context::suspendRequest 
+   * and Context::resumeRequest.
+   * 
+   * It is safe to nest calls to Context::beginRequest so long as 
+   * each call is balanced by a matching Context::endRequest.
+   */
+  /*@{*/
+
+  void beginRequest() const;
+  void endRequest() const;
+  void yieldRequest() const;
+  RefCount suspendRequest() const;
+  void resumeRequest(RefCount saveDepth) const;
+  
+  /*@}*/
+  
+  /* Methods concerning the byte-code interpreter */
+  StackFramePtr getStackFrame() const;
+  
+  Bool isRunning() const;
+  Bool isConstructing() const;
+  Bool isAssigning() const;
+
+  /*@{*/
+  /** Memory allocation functions */
+  
+  void *malloc(Uint nbytes) const;
+  void *realloc(void *ptr, Uint nbytes) const;
+  void free(void *ptr) const;
+  char *strdup(const char *str) const;
+  
+  /*@}*/
+  
+  /*@{*/
+  /** Principal functions */
+  RefCount holdPrincipals(Principals &pcps) const;
+  RefCount dropPrincipals(Principals &pcps) const;
+  /*@}*/
+      
+  /*@{*/
+  /** Threading functions */
+  Word getThread() const;
+  Word setThread() const;
+  Word clearThread() const;
+  /*@}*/
+      
+  /*@{*/
+  /** Exception functions */
+  Bool isExceptionPending() const;
+  Bool getPendingException(Value &v) const;
+  void setPendingException(Value &v) const;
+  void clearPendingException() const;
+  Bool reportPendingException() const;
+  /*@}*/
+
+protected:
+  static void defaultErrorReporter(ContextPtr cx, const char *msg,
+                                   ErrorReport &err);
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_contextapi_H */

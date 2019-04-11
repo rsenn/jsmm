@@ -1,0 +1,99 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_classapi_H
+#define jsmm_classapi_H
+
+#include <jsmm/reference>
+#include <jsmm/callback>
+
+struct JSExtendedClass;
+
+jsmm_namespace_BEGIN
+
+class Class;
+
+/**
+ * Implementation of SpiderMonkey Classes.
+ */
+struct ClassAPI : public ClassRef
+{
+public:
+/*    ClassAPI(ClassPtr ptr) : ClassRef(ptr)
+  {}*/
+
+  ClassAPI(ClassRef ref) : ClassRef(ref)
+  {}
+
+  JSExtendedClass *getExtendedPtr() const;
+  Class *getInstance() const;
+  Class &requestInstance() const;
+
+  static ClassPtr create
+    (const char *name, Bool hasPrivate = false, Bool isExtended = false);
+
+  ObjectPtr init
+    (ContextRef cx, ObjectRef obj, ObjectPtr parent_proto, 
+     Native *constructor, Uint nargs, PropertySpec ps[], FunctionSpec fs[], 
+     PropertySpec static_ps[] = 0, FunctionSpec static_fs[] = 0) const;
+  
+  Bool hasPrivate() const;
+  Bool isExtended() const;
+  void ensureIsExtended() const;
+  const char *getName() const;
+  void *getClassVTable() const;
+  void *getObjectVTable() const;
+  Uint8 numReservedSlots() const;
+  void setReservedSlots(Uint8 nslots) const;
+
+  void setAddPropertyOp(PropertyOp &op) const;
+  void setDelPropertyOp(PropertyOp &op) const;
+  void setGetPropertyOp(PropertyOp &op) const;
+  void setSetPropertyOp(PropertyOp &op) const;
+  void setEnumerateOp(EnumerateOp &op) const;
+  void setResolveOp(ResolveOp &op) const;
+  void setConvertOp(ConvertOp &op) const;
+  void setFinalizeOp(FinalizeOp &op) const;
+  
+  void setGetObjectOps(GetObjectOps *op) const;
+  void setCheckAccessOp(CheckAccessOp *op) const;
+  void setCallOp(Native *op) const;
+  void setConstructOp(Native *op) const;
+  void setXDRObjectOp(XDRObjectOp *op) const;
+  void setHasInstanceOp(HasInstanceOp *op) const;
+  void setMarkOp(MarkOp *op) const;
+  void setReserveSlotsOp(ReserveSlotsOp *op) const;
+  
+  void setEqualityOp(EqualityOp *op) const;
+  void setOuterObjectOp(ObjectOp *op) const;
+  void setInnerObjectOp(ObjectOp *op) const;    
+
+/*  private:
+  void initBuiltin(Uint8 nslots = 2, void *vtable = 0);*/
+/*
+protected:
+  void setName(const char *name) const;
+  void freeName() const;
+  void setClassVTable(void *vtable) const;
+  void setObjectVTable(void *vtable) const;*/
+};  
+
+jsmm_namespace_END
+
+#endif /* jsmm_classapi_H */

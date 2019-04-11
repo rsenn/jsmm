@@ -1,0 +1,73 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_arrayobjectapi_H
+#define jsmm_arrayobjectapi_H
+
+#include <jsmm/object>
+
+jsmm_namespace_BEGIN
+
+class ArrayObjectAPI : public ObjectAPI
+{
+public:    
+  ArrayObjectAPI
+    (ObjectAPI obj);
+
+  ArrayObjectAPI
+    (ContextRef cx, ObjectAPI obj);
+
+  static ObjectPtr create
+    (ContextRef cx, Int length, Value vector[] = 0);
+  
+  Bool getLength
+    (ContextRef cx, Uint &length) const;
+
+  Bool setLength
+    (ContextRef cx, Uint length);
+
+  Bool defineElement
+    (ContextRef cx, Int index, Value value,
+     PropertyOp &getter, PropertyOp &setter, Uint attrs);
+
+  Bool aliasElement
+    (ContextRef cx, const char *name, Int alias);
+
+  Bool hasElement
+    (ContextRef cx, Int index, Bool &found) const;
+
+  Bool lookupElement
+    (ContextRef cx, Int index, Value &v) const;
+
+  Bool getElement
+    (ContextRef cx, Int index, Value &v) const;
+
+  Bool setElement
+    (ContextRef cx, Int index, Value v);
+
+  Bool deleteElement
+    (ContextRef cx, Int index);
+
+  Bool deleteElement
+    (ContextRef cx, Int index, Value &rval);
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_arrayobjectapi_H */

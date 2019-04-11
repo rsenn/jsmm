@@ -1,0 +1,324 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_objectapi_H
+#define jsmm_objectapi_H
+
+#include <jsmm/reference>
+#include <jsmm/context>
+#include <jsmm/value>
+
+jsmm_namespace_BEGIN
+
+/** 
+ * Forward declarations 
+ */
+class Object;
+class Prototype;
+
+struct Principals;
+struct FunctionSpec;
+struct PropertySpec;
+struct ConstDoubleSpec;
+
+typedef Bool Native
+  (ContextRef cx, ObjectPtr obj, Uint argc, Value argv[], Value &rval);
+
+/**
+ * Object reference.
+ * 
+ * This structure wraps a pointer to a JSObject.
+ * 
+ * Because it has only one member, it has the size of a word, so it
+ * can be passed along argument lists.
+ */
+struct ObjectAPI : public ObjectRef
+{
+typedef Bool PropertyOp
+  (ContextRef cx, ObjectAPI obj, Value id, Value &vref);
+
+public:
+  ObjectAPI(ObjectPtr ptr) : ObjectRef(ptr)
+  {}
+
+  ObjectAPI(ObjectRef ref) : ObjectRef(ref)
+  {}
+
+  Bool initStandardClasses(ContextRef cx) const;
+    
+  static ObjectPtr create
+    (ContextRef cx, ObjectPtr parent);
+  
+  static ObjectPtr create
+    (ContextRef cx, ClassPtr cls, ObjectPtr parent);
+    
+  static ObjectPtr create
+    (ContextRef cx, ClassPtr cls, ObjectPtr proto, ObjectPtr parent);
+
+  static ObjectPtr construct
+    (ContextRef cx, ClassPtr cls, ObjectPtr proto, ObjectPtr parent);
+    
+  static ObjectPtr constructWithArguments
+    (ContextRef cx, ClassPtr cls, ObjectPtr proto, ObjectPtr parent,
+     Uint argc, Value argv[]);
+  
+  static ObjectPtr createArray
+    (ContextRef cx, Int length, Value *vector);      
+  
+/*    static ObjectPtr create(ContextRef cx, ObjectPtr parent);
+  static ObjectPtr create(ContextRef cx, ClassPtr cls, ObjectPtr parent);
+  static ObjectPtr create(ContextRef cx, ClassPtr cls, ObjectPtr proto, 
+                          ObjectPtr parent);*/
+  
+  ObjectPtr defineObject
+    (ContextRef cx, const char *name, ClassPtr cls, ObjectPtr proto, 
+     Int attrs = DefaultProp) const;
+  
+  ObjectPtr defineObject
+    (ContextRef cx, const char *name, ClassPtr cls, 
+     Int attrs = DefaultProp) const;
+  
+  ObjectPtr defineObject
+    (ContextRef cx, const char *name, Int attrs = DefaultProp) const;
+
+  Uint8 numReservedSlots(ContextRef cx) const;
+  Bool getReservedSlot(ContextRef cx, Uint8 index, Value &val) const;
+  Bool setReservedSlot(ContextRef cx, Uint8 index, Value val) const;
+  
+  Object *getInstance(ContextRef cx) const;
+  Object &requestInstance(ContextRef cx) const;
+
+  /// Retrieves the Class associated with the Object.
+  ClassRef getClass(ContextRef cx) const;
+  
+  /// Determines if the Object is an instance of the specified Class. 
+  Bool instanceOf(ContextRef cx, ClassPtr cls, Value argv[] = 0) const;
+
+  /// Checks whether the Value delegates behaviour to this object.
+  Bool hasInstance(ContextRef cx, Value v, Bool &bref) const;
+  
+  Bool isDelegate(ContextRef cx, Value v, Bool &bref) const;
+  
+  /// Gets private pointer value.
+  void *getPrivate(ContextRef cx) const;
+  
+  /// Sets private pointer value.
+  void setPrivate(ContextRef cx, void *prv) const;
+  
+  /// Retrieves the private data associated with the Object if it is
+  /// an instance of the specified Class.
+  void *getInstancePrivate(ContextRef cx, ClassPtr cls, Value argv[] = 0) 
+    const;
+  
+  /// Retrieves the Object's prototype.
+  ObjectPtr getPrototype(ContextRef cx) const;
+  
+  /// Sets the prototype for the Object.
+  Bool setPrototype(ContextRef cx, ObjectPtr proto) const;
+  
+  /// Retrieves the parent object.
+  ObjectPtr getParent(ContextRef cx) const;
+  
+  /// Sets the parent object.
+  Bool setParent(ContextRef cx, ObjectPtr parent) const;
+  
+  /// Get a unique identifier for the Object, good for the lifetime of the
+  /// Object (even if it is moved by a copying GC).
+  Bool getId(ContextRef cx, Id &id) const;      
+
+  /// Seal the object.
+  Bool sealObject(ContextRef cx, Bool deep) const;
+  
+//    Bool definePrototype(ContextRef cx, Prototype &proto);
+  
+  /*@{*/
+  /** Property Methods */
+  Bool defineConstDoubles
+    (ContextRef cx, ConstDoubleSpec cds[]) const;
+  
+  Bool defineProperties
+    (ContextRef cx, PropertySpec ps[]) const;
+  
+  Bool defineProperty
+    (ContextRef cx, const char *name, Value value, 
+     PropertyOp &getter, PropertyOp &setter, 
+     Int attrs = 0) const;
+  
+  Bool defineProperty
+    (ContextRef cx, const Char *name, Uint namelen,
+     Value value, PropertyOp &getter, PropertyOp &setter,
+     Int attrs = 0) const;
+  
+  Bool getPropertyAttributes
+    (ContextRef cx, const char *name, 
+     PropertyAttr &attrs, Bool &found) const;
+
+  Bool getPropertyAttributes
+    (ContextRef cx, const Char *name, Uint namelen,
+     PropertyAttr &attrs, Bool &found) const;
+
+  Bool getPropertyAttrsGetterAndSetter
+    (ContextRef cx, const char *name, PropertyAttr &attrs, 
+     Bool &found, PropertyOp *&getter, PropertyOp *&setter) const;
+  
+  Bool getPropertyAttrsGetterAndSetter
+    (ContextRef cx, const Char *name, Uint namelen, PropertyAttr &attrs, 
+     Bool &found, PropertyOp *&getter, PropertyOp *&setter) const;
+  
+  Bool setPropertyAttributes
+    (ContextRef cx, const char *name, Int attrs, Bool &found) const;
+  
+  Bool setPropertyAttributes
+    (ContextRef cx, const Char *name, Uint namelen, Int attrs, Bool &found) 
+    const;
+
+  Bool definePropertyWithTinyId
+    (ContextRef cx, const char *name, Uint8 tinyid, Value value, 
+     PropertyOp &getter, PropertyOp &setter, Int attrs) const;
+
+  Bool definePropertyWithTinyId
+    (ContextRef cx, const Char *name, Uint namelen, Uint8 tinyid, 
+     Value value, PropertyOp &getter, PropertyOp &setter, Int attrs) const;
+  
+  Bool aliasProperty
+    (ContextRef cx, const char *name, const char *alias) const;
+  
+  Bool hasProperty
+    (ContextRef cx, const char *name, Bool &found) const;
+
+  Bool hasProperty
+    (ContextRef cx, const Char *name, Uint namelen, Bool &found) const;
+  
+  Bool lookupProperty
+    (ContextRef cx, const char *name, Value &v) const;
+
+  Bool lookupProperty
+    (ContextRef cx, const Char *name, Uint namelen, Value &v) const;
+  
+  Bool lookupPropertyWithFlags
+    (ContextRef cx, const char *name, PropertyAttr flags, Value &v) const;
+
+/*    Bool lookupPropertyWithFlags(ContextRef cx, const Char *name, 
+                               Uint namelen, PropertyAttr flags, Value &v) const;*/
+  
+  Bool getProperty
+    (ContextRef cx, const char *name, Value &v) const;
+
+  Bool getProperty
+    (ContextRef cx, const Char *name, Uint namelen, Value &v) const;
+  
+  Bool getMethod
+    (ContextRef cx, const char *name, ObjectPtr &obj, Value &v) const;
+  
+  Bool setProperty
+    (ContextRef cx, const char *name, Value v) const;
+
+  Bool setProperty
+    (ContextRef cx, const Char *name, Uint namelen, Value v) const;
+
+  Bool deleteProperty
+    (ContextRef cx, const char *name) const;
+
+/*    Bool deleteProperty(ContextRef cx, const Char *name, Uint namelen) const;*/
+  
+  Bool deleteProperty
+    (ContextRef cx, const char *name, Value &rval) const;
+
+  Bool deleteProperty
+    (ContextRef cx, const Char *name, Uint namelen, Value &rval) const;
+  /*@}*/
+
+  Bool isFunction(ContextRef cx) const;
+  FunctionPtr getFunction(ContextRef cx) const;
+
+  Bool defineFunctions
+    (ContextRef cx, FunctionSpec fs[]) const;
+  
+  FunctionPtr defineFunction
+    (ContextRef cx, const char *name, Native &call, Uint nargs, Int attrs) 
+    const;
+  
+  FunctionPtr defineFunction
+    (ContextRef cx, const Char *name, Uint namelen, Native &call, Uint nargs,
+     Int attrs) const;
+
+  ObjectPtr cloneFunction
+    (ContextRef cx, ObjectPtr parent = 0) const;
+  
+  FunctionPtr compileFunction
+    (ContextRef cx, const char *name, Uint nargs, const char **argnames,
+     const char *bytes, Uint length, const char *filename, Uint lineno) 
+    const;
+                              
+  FunctionPtr compileFunction
+    (ContextRef cx, const char *name, Uint nargs, const char **argnames,
+     const Char *chars, Uint length, const char *filename, Uint lineno) 
+    const;
+  
+  FunctionPtr compileFunctionForPrincipals
+    (ContextRef cx, const char *name, Principals *principals, Uint nargs, 
+     const char **argnames, const char *bytes, Uint length, 
+     const char *filename, Uint lineno) const;
+                              
+  FunctionPtr compileFunctionForPrincipals
+    (ContextRef cx, const char *name, Principals *principals, Uint nargs, 
+     const char **argnames, const Char *bytes, Uint length, 
+     const char *filename, Uint lineno) const;
+
+  Bool isNumberObject
+    (ContextRef cx) const;
+
+  Bool isArrayObject
+    (ContextRef cx) const;
+
+  Bool hasArrayLength
+    (ContextRef cx, Uint &length) const;
+
+  Bool isFileObject
+    (ContextRef cx) const;
+
+  void clearScope
+    (ContextRef cx) const;
+
+  IdArray &enumerate
+    (ContextRef cx) const;
+  
+  ObjectPtr newPropertyIterator
+    (ContextRef cx) const;
+
+  Bool nextProperty
+    (ContextRef cx, Id &id) const;
+
+  Bool checkAccess
+    (ContextRef cx, Id id, AccessMode mode, Value &v, PropertyAttrs &attrs) 
+    const;
+
+  Value toValue() const;
+  
+protected:
+  ObjectAPI(JSObject *obj) : ObjectRef(obj)
+  {}    
+  
+private:
+  void ensureHasPrivate(ContextRef cx) const;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_objectapi_H */

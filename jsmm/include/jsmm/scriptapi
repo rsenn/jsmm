@@ -1,0 +1,86 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_scriptapi_H
+#define jsmm_scriptapi_H
+
+#include <jsmm/reference>
+#include <jsmm/types>
+
+#include <string>
+
+jsmm_namespace_BEGIN
+
+struct Value;
+
+/**
+ * Implementation of Script's.
+ */
+struct ScriptAPI : public ScriptRef
+{
+public:
+  ScriptAPI(ScriptRef ref) : ScriptRef(ref)
+  {}    
+  
+  const char *getName() const;
+  ObjectPtr getObject() const;
+
+  ObjectPtr newObject
+    (ContextRef cx) const;
+
+  Bool execute
+    (ContextRef cx, Value &rval) const;
+
+  Bool execute
+    (ContextRef cx, ObjectPtr obj, Value &rval) const;    
+
+  ScriptPtr compileFile
+    (ContextRef cx, const std::string &filename);
+
+  ScriptPtr compileFile
+    (ContextRef cx, ObjectRef obj, const std::string &filename);
+
+  ScriptPtr compileBuffer
+    (ContextRef cx, const char *buf, Uint len,
+     const std::string &name, Uint lineno = 0);
+
+  ScriptPtr compileBuffer
+    (ContextRef cx, ObjectPtr obj, const char *buf, Uint len, 
+     const std::string &name, Uint lineno = 0);
+  
+  ScriptPtr compileString
+    (ContextRef cx, const std::string &script, 
+     const std::string &name, Uint lineno = 0);
+
+  ScriptPtr compileString
+    (ContextRef cx, ObjectPtr obj, const std::string &script, 
+     const std::string &name, Uint lineno = 0);
+
+  StringPtr decompile
+    (ContextRef cx, const char *name, Uint indent) const;
+  
+  static Bool isCompilableUnit
+    (ContextRef cx, const char *bytes, Uint length);    
+
+  void destroy(ContextRef cx);
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_scriptapi_H */

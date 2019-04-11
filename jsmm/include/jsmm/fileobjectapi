@@ -1,0 +1,81 @@
+// <jsmm> -*- C++ -*-
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_fileobjectapi_H
+#define jsmm_fileobjectapi_H
+
+#include <jsmm/object>
+
+jsmm_namespace_BEGIN
+
+enum FileObjectMode
+{
+  ModeRdOnly     = 0x01,
+  ModeWrOnly     = 0x02,
+  ModeRdWr       = 0x04,
+  ModeCreateFile = 0x08,
+  ModeAppend     = 0x10,
+  ModeTruncate   = 0x20,
+  ModeSync       = 0x40,
+  ModeExcl       = 0x80
+};
+
+/** Structure representing the file internally */
+struct File
+{
+  char *path;            /* the path to the file. */
+  Bool  isOpen;
+  Int32 mode;            /* mode used to open the file: read, write, append, create, etc.. */
+  Int32 type;            /* Asciiz, utf, unicode */
+  char  byteBuffer[3];   /* bytes read in advance by js_FileRead( UTF8 encoding ) */
+  Int   nbBytesInBuf;    /* number of bytes stored in the buffer above */
+  Char  charBuffer;      /* character read in advance by readln( mac files only ) */
+  Bool  charBufferUsed;  /* flag indicating if the buffer above is being used */
+  Bool  hasRandomAccess; /* can the file be randomly accessed? false for stdin, and UTF-encoded files. */
+  Bool  hasAutoflush;    /* should we force a flush for each line break? */
+  Bool  isNative;        /* if the file is using OS-specific file FILE type */
+  FILE *nativehandle;    /* native handle, for stuff NSPR doesn't do. */
+  Bool  isPipe;          /* if the file is really an OS pipe */
+};
+
+typedef Uint8 FileObjectModes;
+
+/**
+ * API for File Object's.
+ */
+class FileObjectAPI : public ObjectAPI
+{
+public:    
+  FileObjectAPI
+    (ContextRef cx, ObjectAPI obj);
+
+  static ObjectPtr create
+    (ContextRef cx, const char *filename);
+
+  static ObjectPtr create
+    (ContextRef cx, FILE *native, const char *filename, 
+     FileObjectModes mode, Bool open, Bool randomAccess);
+  
+  File &getPrivate
+    (ContextRef cx) const;
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_fileobjectapi_H */

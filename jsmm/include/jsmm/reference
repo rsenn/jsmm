@@ -1,0 +1,201 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_reference_H
+#define jsmm_reference_H
+
+#include <jsmm/pointer>
+#include <jsmm/exception>
+
+jsmm_namespace_BEGIN
+
+/**
+ * Forward declaration for generic reference.
+ */
+struct Reference;
+
+/** Allows concatenation of C strings and References */
+std::string operator+(const char *s, Reference &ref);
+
+/**
+ * Forward declaration for typed reference.
+ */
+template<typename refType, enum PointerType refTypeId>
+  struct TypedReference;
+  
+/**
+ * Exception thrown at invalid (zero) TypedReference.
+ */
+template<typename refType, enum PointerType refTypeId>
+  class TypedReferenceException : public Exception
+{
+public:
+  /** Construct a TypedReference exception */
+  TypedReferenceException(TypedReference<refType, refTypeId> *ref) :
+    Exception(ReferenceEx),
+    reference(*ref),
+    referenceType(voidPtr)
+  {
+    message += ": ";
+    message += reference.toString();
+    message += " at ";
+    message += ref;
+    
+    __asm__("int $3");
+  }
+  
+  /** Destruct a TypedReference exception */
+  virtual ~TypedReferenceException() throw()
+  {}    
+  
+  /** Get the typed reference */
+  TypedReference<refType, refTypeId> &getRef() /*throw()*/ 
+  { 
+    return reference; 
+  }
+
+  /** Get the reference type */
+  PointerType getRefType() const /*throw()*/ 
+  {
+    return referenceType; 
+  }
+  
+  /** Get the reference declaration */
+  std::string getRefString() const /*throw()*/;
+
+protected:    
+  /** The reference which threw the exception. */
+  TypedReference<refType, refTypeId> &reference;
+  
+  /** Type of the reference. */
+  PointerType referenceType;
+};
+  
+/**
+ * Template for typed references.
+ * 
+ * Because it has only one member, it has the size of a word, so it
+ * can be passed along argument lists.
+ * 
+ * A JS::Reference<> must never contain a null-pointer.
+ */
+template<typename refType, enum PointerType refTypeId>
+  struct TypedReference : public TypedPointer<refType, refTypeId>
+{
+protected:
+  /** Checks if the reference is non-null and double-word aligned. */
+  inline void check() 
+  {
+    if(TypedPointer<refType, refTypeId>::getPtr() == 0)
+      throw TypedReferenceException<refType, refTypeId>(this);
+  }
+  
+public:
+  /** Initializes the TypedReference instance with a reference to a JS* structure. */
+  TypedReference(refType &js) : 
+    TypedPointer<refType, refTypeId>(&js)
+  {
+  }
+  
+  /** Initializes the TypedReference instance with a TypedPointer. */
+  TypedReference(const TypedPointer<refType, refTypeId> ptr) : 
+    TypedPointer<refType, refTypeId>(ptr)
+  {
+    check();
+  }
+  
+  /** Allow assignments of refType pointers to the reference. */
+  TypedReference<refType, refTypeId> operator=
+    (refType *js)
+  {
+    TypedPointer<refType, refTypeId>::jsPtr = js;
+    
+    check();
+    
+    return TypedReference<refType, refTypeId>(*this);
+  }
+  
+  /** Allow assignments of refType pointers to the reference. */
+  TypedReference<refType, refTypeId> operator=
+    (TypedPointer<refType, refTypeId> ptr)
+  {
+    TypedPointer<refType, refTypeId>::jsPtr = ptr;
+    
+    check();
+    
+    return TypedReference<refType, refTypeId>(*this);
+  }
+  
+  /** Returns a reference to the associated JS* structure. */
+  inline refType &getRef() const
+  { 
+    return *static_cast<refType *>(TypedPointer<refType, refTypeId>::jsPtr);
+  }
+
+  /** Allow implicit casts of a TypedReference to a refType pointer. */
+  operator refType *() const 
+  { 
+    return TypedPointer<refType, refTypeId>::getPtr();
+  }
+
+  /** Returns the reference type. */
+  static PointerType getType() 
+  { 
+    return refTypeId; 
+  }
+    
+  /** Returns the reference type name. */
+  static const char *getTypeName() 
+  { 
+    return getTypeName(refTypeId); 
+  }
+  
+  /** Converts reference into a string. */
+  std::string toString() const
+  {
+    return TypedPointer<refType, refTypeId>::toString(true);
+  }
+  
+  /** Allows implicit conversion of References into strings. */
+  operator std::string() const
+  {
+    return toString();
+  }
+
+protected:
+  TypedReference()
+  {}
+  
+  /** Initializes the TypedReference instance with a pointer to a JS* structure. */
+  TypedReference(refType *js) : TypedPointer<refType, refTypeId>(js)
+  {}  
+};
+
+typedef TypedReference<JSRuntime,    RuntimePointer>    RuntimeRef;
+typedef TypedReference<JSContext,    ContextPointer>    ContextRef;
+typedef TypedReference<JSObject,     ObjectPointer>     ObjectRef;
+typedef TypedReference<JSFunction,   FunctionPointer>   FunctionRef;
+typedef TypedReference<JSScript,     ScriptPointer>     ScriptRef;
+typedef TypedReference<JSClass,      ClassPointer>      ClassRef;
+typedef TypedReference<JSString,     StringPointer>     StringRef;
+typedef TypedReference<JSStackFrame, StackFramePointer> StackFrameRef;
+
+jsmm_namespace_END
+
+#endif /* jsmm_reference_H */

@@ -1,0 +1,78 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_runtimeapi_H
+#define jsmm_runtimeapi_H
+
+#include <jsmm/reference>
+#include <jsmm/api>
+
+jsmm_namespace_BEGIN
+
+class Runtime;
+
+/**
+ * Class that wraps JSRuntime, the JavaScript execution runtime.
+ */
+struct RuntimeAPI : public RuntimeRef
+{
+public:
+  RuntimeAPI
+    (RuntimeRef ref) : RuntimeRef(ref)
+  {}
+
+  static RuntimePtr create
+    (Uint maxbytes)
+  {
+    return NewRuntime(maxbytes);
+  }
+      
+  Runtime *getInstance
+    () const
+  {
+    return static_cast<Runtime *>(GetRuntimePrivate(*this));
+  }
+
+  void lock
+    ();
+
+  void unlock
+    ();
+  
+  Uint32 mapGCRoots
+    (GCRootMapFun &map, void *data);
+
+  Bool lockGCThing
+    (void *thing);
+
+  Bool unlockGCThing
+    (void *thing);
+  
+  // TODO: CheckAccessOp *setCheckObjectAccessCallback(CheckAccessOp *acb)
+  
+  PrincipalsTranscoder *setPrincipalsTranscoder
+    (PrincipalsTranscoder *px);
+
+  ObjectPrincipalsFinder *setObjectPrincipalsFinder
+    (ObjectPrincipalsFinder *fop);
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_runtimeapi_H */

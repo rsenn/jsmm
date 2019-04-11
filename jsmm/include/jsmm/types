@@ -1,0 +1,217 @@
+// <jsmm> -*- C++ -*-
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_types_H
+#define jsmm_types_H
+
+#include <stdint.h>
+
+#include <jsmm/namespace>
+
+jsmm_namespace_BEGIN
+
+/** JS::Bool is an integer */
+typedef int Bool;
+
+/** JS::Byte is a character */
+typedef char Byte;
+
+/** JS::Char is an unicode character */
+typedef uint16_t Char;
+
+/** JS::Int is a signed integer of word-size */
+typedef int Int;
+
+/** JS::Int8 is a signed integer of byte-size */
+typedef int8_t Int8;
+
+/** JS::Int is an unsigned integer of word-size */
+typedef int32_t Int32;
+
+/** JS::Int is an unsigned integer of double word-size */
+typedef int64_t Int64;
+
+/** JS::Uint8 is an unsigned integer of byte-size */
+typedef uint8_t Uint8;
+
+/** JS::Uint16 is an unsigned integer of 16bit size */
+typedef uint16_t Uint16;
+
+/** JS::Uint32 is an unsigned integer of 32bit size */
+typedef uint32_t Uint32;
+
+/** JS::Uint is an unsigned integer of word-size */
+typedef unsigned int Uint;
+
+/** JS::Word has same size as a pointer type. */
+typedef long Word;
+
+/** JS::Word has same size as a pointer type. */
+typedef unsigned long Uword;
+
+typedef unsigned int Size;
+
+/** JS::Id is an id for properties etc. */
+typedef long Id;
+
+/** JS::Double is a 64bit floating point value */
+typedef double Double;
+
+/** JS::RefCount is a 32bit reference counter */
+typedef int32_t RefCount;
+
+/** JS::IdArray */
+typedef struct IdArray IdArray;
+
+/** JS::Property */
+typedef struct Property Property;
+
+/*@{*/
+/** Possible types for a JS::Value */
+enum Type
+{   
+  VoidType,
+  ObjectType,
+  FunctionType,
+  StringType,
+  NumberType,
+  BooleanType,
+  NullType,
+  XMLType,
+  NumTypes
+};
+/*@}*/
+
+/*@{*/
+/** ObjectOps.checkAccess mode enumeration */
+enum AccessMode
+{
+  ProtoAccess  = 0,
+  ParentAccess = 1,
+  ImportAccess = 2,
+  WatchAccess  = 3,
+  ReadAccess   = 4,
+  WriteAccess  = 8
+};
+
+typedef enum AccessMode AccessMode;
+/*@}*/
+
+/*@{*/
+/** Current state of an iteration */
+enum IterateOp
+{
+  InitEnumeration,
+  NextEnumeration,
+  DestroyEnumeration
+};
+
+typedef enum IterateOp IterateOp;
+/*@}*/
+
+/*@{*/
+/** Property attributes */
+enum PropertyAttr
+{
+  DefaultProp   = 0x00,
+  EnumerateProp = 0x01, /**< Property is visible in for loops. */
+  ReadOnlyProp  = 0x02, /**< Property is read-only. */
+  PermanentProp = 0x04, /**< Property cannot be deleted. */
+  ExportedProp  = 0x08, /**< Property can be exported outside its object. */
+  GetterProp    = 0x10, /**< Property has a defined getter function. */
+  SetterProp    = 0x20, /**< Property has a defined setter function. */
+  SharedProp    = 0x40, /**< Don't allocate a value slot for this
+                             property; don't copy the property on
+                             set of the same-named property in an
+                             object that delegates to a prototype
+                             containing this property*/
+  IndexProp     = 0x80  /**< Property is actually an array element. */
+};
+
+typedef Uint8 PropertyAttrs;
+/*@}*/
+
+/*@{*/
+/** Function flags, set in FunctionSpec and passed to Function methods. */
+enum FunctionFlag
+{
+  DefaultFunction     = 0x00,
+  InstanceFunction    = 0x04,    /**< needs living BaseFunction instance. */  
+  LambdaFunction      = 0x08,    /**< expressed, not declared, function */
+  GetterFunction      = GetterProp,
+  SetterFunction      = SetterProp,
+  BoundMethod         = 0x40,    /**< bind this to fun->object's parent */
+  HeavyweightFunction = 0x80     /**< activation requires a Call object */
+};
+
+typedef Uint8 FunctionFlags;
+/*@}*/
+
+/*@{*/
+/** Version */
+enum Version
+{
+  Version1_0     = 100,
+  Version1_1     = 110,
+  Version1_2     = 120,
+  Version1_3     = 130,
+  Version1_4     = 140,
+  VersionECMA3   = 148,
+  Version1_5     = 150,
+  Version1_6     = 160,
+  DefaultVersion = 0,
+  UnknownVersion = -1
+};
+/*@}*/
+
+/*@{*/
+/** Garbage collection status */
+enum GCStatus
+{
+  BeginGC,
+  EndGC,
+  MarkEndGC,
+  FinalizeEndGC
+};
+/*@}*/
+
+/*@{*/
+/** Garbage collection parameter key */
+enum GCParamKey
+{
+  MaxBytesGC     = 0, /**< Maximum nominal heap before last ditch GC */
+  MaxMallocBytes = 1  /**< # of JS_malloc bytes before last ditch GC */
+};
+/*@}*/
+
+/*@{*/
+/**
+ * Execute either the function-defining prolog of a script, or the script's
+ * main body, but not both.
+ */
+enum ExecPart
+{
+  PrologExec,
+  MainExec
+};
+/*@}*/
+
+jsmm_namespace_END
+
+#endif /* jsmm_types_H */

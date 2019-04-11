@@ -1,0 +1,87 @@
+// <jsmm> -*- C++ -*- 
+
+// C++ wrapper for the SpiderMonkey JavaScript engine.
+// Copyright (C) 2006  Roman Senn <r.senn@nexbyte.com>
+//    
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+
+#ifndef jsmm_prototype_H
+#define jsmm_prototype_H
+
+#include <jsmm/propertyspec>
+#include <jsmm/functionspec>
+
+jsmm_namespace_BEGIN
+
+/**
+ * A prototype which namespace functions and properties of an Object.
+ */
+class Prototype
+{
+public:
+  Prototype()
+  {}
+  
+  ~Prototype()
+  {}
+  
+  /// Clear the property spec array.
+  void clearProperties();
+  
+  /// Get a pointer to the property spec array.
+  PropertySpecs &getProperties();
+
+  /// Add one or more properties.
+  Bool addProperties
+    (PropertySpec *props, Uint n = 1);
+
+  /// Add a property.
+  Bool addProperty
+    (const char *name, Uint8 tinyid, PropertyOp &getter, PropertyOp &setter,
+     Int attrs = DefaultProp);
+
+  operator PropertySpec *() const
+  {
+    return ps;
+  }
+  
+  /// Clear the function spec array.
+  void clearFunctions();
+
+  /// Get a pointer to the function spec array.
+  FunctionSpecs &getFunctions();
+
+  /// Add functions to the prototype specification.
+  Bool addFunctions
+    (FunctionSpec *funcs, Uint n = 1);
+  
+  /// Adds a new function spec to the prototype specification.
+  Bool addFunction
+    (const char *name, Native &call, Uint nargs, 
+     Int flags = DefaultFunction);
+  
+  operator FunctionSpec *() const
+  {
+    return fs;
+  }
+  
+private:
+  PropertySpecs ps; /**< Property spec array */
+  FunctionSpecs fs; /**< Function spec array */
+};
+
+jsmm_namespace_END
+
+#endif /* jsmm_prototype_H */
