@@ -40,6 +40,7 @@
 #include "jsconfig.h"
 
 #if JS_THREADSAFE
+#include "config.h"
 
 /*
  * JS locking stubs.
@@ -49,6 +50,7 @@
 #include <nspr/prthread.h>
 #include "jspubtd.h"
 #include "jsutil.h" /* Added by JSIFY */
+#include "config.h"
 #include "jstypes.h"
 #include "jsbit.h"
 #include "jscntxt.h"

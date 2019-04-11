@@ -45,6 +45,7 @@
  */
 #if JS_HAS_FILE_OBJECT
 
+#include "config.h"
 #include "jsstddef.h"
 
 /* ----------------- Platform-specific includes and defines ----------------- */

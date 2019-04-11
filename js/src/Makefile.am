@@ -8,12 +8,13 @@ lib_LTLIBRARIES = libjs.la
 bin_PROGRAMS = js
 noinst_HEADERS = prmjtime.h jsconfig.h.in
 pkginclude_HEADERS = jsapi.h jsarena.h jsarray.h jsatom.h jsautocfg.h jsbit.h jsbool.h jsclist.h jscntxt.h jscompat.h jsdate.h jsdbgapi.h jsdhash.h jsdtoa.h jsemit.h jsexn.h jsfile.h jsfun.h jsgc.h jshash.h jsinterp.h jslibmath.h jslock.h jslong.h jsmath.h jsnum.h jsobj.h jsopcode.h jsosdep.h jsotypes.h jsparse.h jsprf.h jsprvtd.h jspubtd.h jsregexp.h jsscan.h jsscope.h jsscript.h jsstddef.h jsstr.h jstypes.h jsutil.h jsxdrapi.h jsxml.h
-pkginclude_DATA = jscpucfg.h jsconfig.h js.msg jsfile.msg jsshell.msg jsopcode.tbl
+pkgdata_DATA = jscpucfg.h jsconfig.h js.msg jsfile.msg jsshell.msg jsopcode.tbl
 
 libjs_la_SOURCES = jsapi.c jsarena.c jsarray.c jsatom.c jsbool.c jscntxt.c jsdate.c jsdbgapi.c jsdhash.c jsdtoa.c jsemit.c jsexn.c jsfile.c jsfun.c jsgc.c jshash.c jsinterp.c jslock.c jslog2.c jslong.c jsmath.c jsnum.c jsobj.c jsopcode.c jsparse.c jsprf.c jsregexp.c jsscan.c jsscope.c jsscript.c jsstr.c jsutil.c jsxdrapi.c jsxml.c prmjtime.c
 libjs_la_DEPENDENCIES = $(DATA)
 
 pkgincludedir = $(includedir)/js
+pkgdatadir = $(includedir)/js
 
 if USE_FDLIBM_MATH
 libjs_la_LIBADD = -Lfdlibm -lfdm $(NSPR_LIBS) $(MATH_LIBS)

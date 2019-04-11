@@ -46,6 +46,7 @@
 #endif
 #include <string.h>
 #include <time.h>
+#include "config.h"
 #include "jstypes.h"
 #include "jsutil.h"
 

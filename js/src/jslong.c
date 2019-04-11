@@ -37,6 +37,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "jsstddef.h"
+#include "config.h"
 #include "jstypes.h"
 #include "jslong.h"
 

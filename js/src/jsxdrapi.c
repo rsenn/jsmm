@@ -42,6 +42,7 @@
 #if JS_HAS_XDR
 
 #include <string.h>
+#include "config.h"
 #include "jstypes.h"
 #include "jsutil.h" /* Added by JSIFY */
 #include "jsdhash.h"

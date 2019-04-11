@@ -40,7 +40,7 @@
 #ifndef _jsfile_h__
 #define _jsfile_h__
 
-#include <js/jsconfig.h>
+#include <jsconfig.h>
 
 #if JS_HAS_FILE_OBJECT
 extern JS_PUBLIC_API(JSObject*)

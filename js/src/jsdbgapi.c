@@ -40,6 +40,8 @@
 /*
  * JS debugging API.
  */
+#include "config.h"
+#include "jscpucfg.h"
 #include "jsstddef.h"
 #include <string.h>
 #include "jstypes.h"

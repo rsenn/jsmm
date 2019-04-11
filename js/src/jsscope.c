@@ -43,6 +43,7 @@
 #include "jsstddef.h"
 #include <stdlib.h>
 #include <string.h>
+#include "config.h"
 #include "jstypes.h"
 #include "jsarena.h"
 #include "jsbit.h"

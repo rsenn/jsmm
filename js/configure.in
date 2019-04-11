@@ -1,4 +1,4 @@
-AC_INIT([js], [1.6])
+AC_INIT([js],[1.6])
 AC_CONFIG_AUX_DIR([config])
 
 AC_CANONICAL_HOST
@@ -10,10 +10,10 @@ AM_MAINTAINER_MODE
 
 AC_CONFIG_HEADERS([config/config.h src/jsconfig.h src/jscpucfg.h])
 
-dnl AM_DISABLE_SHARED
+dnl AC_DISABLE_SHARED([])
 AC_PROG_CC
 dnl AC_PROG_CXX
-AC_PROG_LIBTOOL
+LT_INIT
 
 AC_FIND_ACDIR
 
@@ -154,6 +154,30 @@ AC_SUBST([LIBTOOL])
 
 AC_DEFINE_UNQUOTED([JS_VERSION], ["$PACKAGE_VERSION"], [Version of the SpiderMonkey engine])
 
+AC_CHECK_SIZEOF([char])
+AC_CHECK_SIZEOF([short])
+AC_CHECK_SIZEOF([int])
+AC_CHECK_SIZEOF([long])
+dnl AC_CHECK_SIZEOF([long long])
+AC_CHECK_SIZEOF([float])
+AC_CHECK_SIZEOF([double])
+
+AC_CHECK_ALIGNOF([void*])
+
+AC_DEFINE_UNQUOTED([JS_BYTES_PER_BYTE],[$ac_cv_sizeof_char],[How many bytes per byte])
+AC_DEFINE_UNQUOTED([JS_BYTES_PER_SHORT],[$ac_cv_sizeof_short],[How many bytes in a short])
+AC_DEFINE_UNQUOTED([JS_BYTES_PER_INT],[$ac_cv_sizeof_int],[How many bytes in an int])
+AC_DEFINE_UNQUOTED([JS_BYTES_PER_LONG],[$ac_cv_sizeof_long],[How many bytes in a long])
+AC_DEFINE_UNQUOTED([JS_BYTES_PER_FLOAT],[$ac_cv_sizeof_float],[How many bytes in a float])
+AC_DEFINE_UNQUOTED([JS_BYTES_PER_DOUBLE],[$ac_cv_sizeof_double],[How many bytes in a double])
+dnl AC_DEFINE_UNQUOTED([JS_ALIGN_OF_POINTER],[$ac_cv_alignof_voidp],[Alignment of pointer])
+
+AC_DEFINE_UNQUOTED([JS_BITS_PER_BYTE],[PR_BITS_PER_BYTE],[How many bits in a byte])
+AC_DEFINE_UNQUOTED([JS_BITS_PER_WORD],[PR_BITS_PER_WORD],[How many bits in a word])
+AC_DEFINE_UNQUOTED([JS_BITS_PER_BYTE_LOG2],[PR_BITS_PER_BYTE_LOG2],[log2(How many bits in a byte)])
+AC_DEFINE_UNQUOTED([JS_BITS_PER_WORD_LOG2],[PR_BITS_PER_WORD_LOG2],[log2(How many bits in a word)])
+
+AC_CHECK_VA_COPY
 
 AC_CONFIG_FILES([Makefile
                  config/Makefile

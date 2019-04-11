@@ -41,6 +41,7 @@
  * JS boolean implementation.
  */
 #include "jsstddef.h"
+#include "config.h"
 #include "jstypes.h"
 #include "jsutil.h" /* Added by JSIFY */
 #include "jsapi.h"

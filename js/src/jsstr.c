@@ -51,6 +51,7 @@
 #include "jsstddef.h"
 #include <stdlib.h>
 #include <string.h>
+#include "config.h"
 #include "jstypes.h"
 #include "jsutil.h" /* Added by JSIFY */
 #include "jshash.h" /* Added by JSIFY */

@@ -43,6 +43,7 @@
 #include "jsstddef.h"
 #include "jslibmath.h"
 #include <stdlib.h>
+#include "config.h"
 #include "jstypes.h"
 #include "jslong.h"
 #include "prmjtime.h"

@@ -42,6 +42,7 @@
  */
 #include "jsstddef.h"
 #include "jslibmath.h"
+#include "config.h"
 #include "jstypes.h"
 #include "jsdtoa.h"
 #include "jsprf.h"

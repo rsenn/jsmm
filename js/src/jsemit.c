@@ -41,11 +41,13 @@
 /*
  * JS bytecode generation.
  */
+#include "config.h"
 #include "jsstddef.h"
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
 #endif
 #include <string.h>
+#include "config.h"
 #include "jstypes.h"
 #include "jsarena.h" /* Added by JSIFY */
 #include "jsutil.h" /* Added by JSIFY */

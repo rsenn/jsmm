@@ -36,6 +36,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#include "config.h"
+
 #include "jsstddef.h"
 #include "jsbit.h"
 

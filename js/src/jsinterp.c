@@ -41,6 +41,7 @@
 /*
  * JavaScript bytecode interpreter.
  */
+#include "config.h"
 #include "jsstddef.h"
 #include <stdio.h>
 #include <string.h>

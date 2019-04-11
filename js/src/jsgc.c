@@ -50,6 +50,7 @@
 #include "jsstddef.h"
 #include <stdlib.h>     /* for free, called by JS_ARENA_DESTROY */
 #include <string.h>     /* for memset, called by jsarena.h macros if JS_DEBUG */
+#include "config.h"
 #include "jstypes.h"
 #include "jsarena.h" /* Added by JSIFY */
 #include "jsutil.h" /* Added by JSIFY */

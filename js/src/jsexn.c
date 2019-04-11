@@ -45,6 +45,7 @@
 #include "jsstddef.h"
 #include <stdlib.h>
 #include <string.h>
+#include "config.h"
 #include "jstypes.h"
 #include "jsbit.h"
 #include "jsutil.h" /* Added by JSIFY */
