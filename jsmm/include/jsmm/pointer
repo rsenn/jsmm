@@ -187,10 +187,10 @@ public:
   }
 
   /** Convert to a typed reference. */
-  operator TypedReference<ptrType, ptrTypeId>() const
-  {
-    return TypedReference<ptrType, ptrTypeId>(jsPtr);
-  }
+//  operator TypedReference<ptrType, ptrTypeId>() const
+//  {
+//    return TypedReference<ptrType, ptrTypeId>(jsPtr);
+//  }
   
   /** Returns the pointer type. */
   static PointerType getType() 
@@ -201,7 +201,7 @@ public:
   /** Returns the pointer type name. */
   static const char *getTypeName() 
   { 
-    return getTypeName(ptrTypeId); 
+    return Pointer::getTypeName(ptrTypeId); 
   }
   
   /** Converts pointer into a string. */

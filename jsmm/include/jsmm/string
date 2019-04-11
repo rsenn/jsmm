@@ -20,7 +20,7 @@
 #ifndef jsmm_string_H
 #define jsmm_string_H
 
-#include <string>
+#include <cstring>
 #include <jsmm/stringapi>
 
 jsmm_namespace_BEGIN
@@ -45,7 +45,7 @@ public:
   {}
   
   String(ContextRef cx, const Byte *bytes) :
-    StringAPI(create(cx, bytes, ::strlen(bytes)))
+    StringAPI(create(cx, bytes, strlen(bytes)))
   {}
 };
 

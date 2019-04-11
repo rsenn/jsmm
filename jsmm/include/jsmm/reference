@@ -163,7 +163,7 @@ public:
   /** Returns the reference type name. */
   static const char *getTypeName() 
   { 
-    return getTypeName(refTypeId); 
+    return TypedPointer<refType, refTypeId>::getTypeName(refTypeId); 
   }
   
   /** Converts reference into a string. */

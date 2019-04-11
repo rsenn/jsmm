@@ -20,6 +20,7 @@
 #ifndef jsmm_allocprivate_H
 #define jsmm_allocprivate_H
 
+#include <cstdlib>
 #include <jsmm/types>
 
 jsmm_namespace_BEGIN

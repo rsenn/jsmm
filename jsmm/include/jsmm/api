@@ -42,7 +42,7 @@ Value *PushArgumentsVA(ContextPtr cx, void **markp, const Byte *format, va_list 
 void PopArguments(ContextPtr cx, void *mark);
 Bool AddArgumentFormatter(ContextPtr cx, const Byte *format, ArgumentFormatter &formatter);
 void RemoveArgumentFormatter(ContextPtr cx, const Byte *format);
-Bool ConvertValue(ContextPtr cx, Value v, Type type, Value &v);
+Bool ConvertValue(ContextPtr cx, Value v, Type type, Value &vref);
 Bool ValueToObject(ContextPtr cx, Value v, ObjectPtr &objp);
 FunctionPtr ValueToFunction(ContextPtr cx, Value v);
 FunctionPtr ValueToConstructor(ContextPtr cx, Value v);
